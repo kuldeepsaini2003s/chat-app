@@ -1,6 +1,5 @@
 import { Server } from "socket.io";
 import { Message } from "../model/messageModel.js";
-import { Chat } from "../model/ChatModel.js";
 
 let io;
 let socket;
@@ -18,14 +17,12 @@ export const getUserSocketId = () => {
 function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:5173"],
+      origin: [process.env.LOCAL_ORIGIN, process.env.BACKEND_ORIGIN],
       methods: ["GET", "POST"],
     },
   });
 
   io.on("connection", async (socket) => {
-    console.log("user connected", socket.id);
-
     const { userId } = socket?.handshake?.query;
 
     if (userId !== undefined) {
@@ -62,7 +59,6 @@ function initSocket(server) {
         },
         { new: true }
       );
-      console.log(updateStatus);
 
       if (updateStatus) {
         const senderSocket = userSocketMap[updateStatus.senderId];

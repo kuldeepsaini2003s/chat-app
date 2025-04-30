@@ -17,7 +17,7 @@ initSocket(server);
 app.use(
   cors({
     credentials: true,
-    origin: [process.env.LOCAL_ORIGIN],
+    origin: [process.env.LOCAL_ORIGIN, process.env.BACKEND_ORIGIN],
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
