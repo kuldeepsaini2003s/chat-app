@@ -1,0 +1,48 @@
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import MediaConfirmationPop from "./MediaConfirmationPop";
+import ChatHeader from "./ChatHeader";
+import MessageInput from "./MessageInput";
+import MessageContainer from "./MessageContainer";
+import { setMessages } from "../redux/messageSlice";
+import { LOCAL_MESSAGE } from "../utils/constant";
+import axios from "axios";
+
+const ChatContainer = () => {
+  const { confirmationPop } = useSelector((store) => store.state);
+  const { activeChat, user } = useSelector((store) => store.user);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data } = await axios.post(`${LOCAL_MESSAGE}/`, {
+          senderId: user._id,
+          receiverId: activeChat._id,
+        });
+        if (data.success) {
+          dispatch(setMessages(data?.data));
+        }
+      } catch (error) {
+        console.error("Error while fetching data", error);
+      }
+    };
+    fetchData();
+  }, [activeChat, dispatch]);
+
+  return (
+    <>
+      <ChatHeader />
+      <MessageContainer />
+      <MessageInput />
+      {confirmationPop && (
+        <div className="absolute z-10 h-dvh top-0 w-full flex items-center justify-center">
+          <MediaConfirmationPop />
+        </div>
+      )}
+    </>
+  );
+};
+
+export default ChatContainer;

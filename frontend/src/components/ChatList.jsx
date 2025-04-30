@@ -1,0 +1,27 @@
+import { useDispatch, useSelector } from "react-redux";
+import ChatItem from "./ChatItem";
+import { setActiveChat } from "../redux/userSlice";
+
+const ChatList = () => {
+  const { activeChat, contacts } = useSelector((store) => store.user);
+  const dispatch = useDispatch();
+  const handleClick = (chat) => {
+    dispatch(setActiveChat(chat));
+  };
+  return (
+    <div className="flex-1 p-2 rounded-md overflow-y-auto remove-scrollbar">
+      <div className="flex flex-col gap-1">
+        {contacts?.map((chat) => (
+          <ChatItem
+            key={chat._id}
+            chat={chat}
+            isActive={activeChat?._id === chat._id}
+            onClick={() => handleClick(chat)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default ChatList;
