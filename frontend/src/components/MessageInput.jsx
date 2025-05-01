@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setMediaFiles, setMediaPreview } from "../redux/stateSlice";
 import { setMessages } from "../redux/messageSlice";
 import axios from "axios";
-import { LOCAL_MESSAGE } from "../utils/constant";
+import { BACKEND_MESSAGE } from "../utils/constant";
 import useFetchRealTimeMessages from "../hooks/useFetchRealTimeMessages";
 
 const MessageInput = () => {
@@ -35,7 +35,10 @@ const MessageInput = () => {
       setMessage("");
       inputRef?.current?.focus();
       try {
-        const { data } = await axios.post(LOCAL_MESSAGE + "/send", newMessage);
+        const { data } = await axios.post(
+          BACKEND_MESSAGE + "/send",
+          newMessage
+        );
       } catch (error) {
         console.error("Error while sending message", error);
       }

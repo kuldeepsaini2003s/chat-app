@@ -3,7 +3,7 @@ import ChatList from "./ChatList";
 import { EllipsisVertical, RefreshCcw, Search } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { LOCAL_USER } from "../utils/constant";
+import { BACKEND_USER } from "../utils/constant";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../redux/userSlice";
 
@@ -28,7 +28,7 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      const { data } = await axios.get(LOCAL_USER + "/logout", {
+      const { data } = await axios.get(BACKEND_USER + "/logout", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },

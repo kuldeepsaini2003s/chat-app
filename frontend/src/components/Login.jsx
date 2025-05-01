@@ -2,7 +2,7 @@ import React, { useActionState } from "react";
 import "./Signup.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { LOCAL_USER } from "../utils/constant";
+import { BACKEND_USER } from "../utils/constant";
 import { setUser } from "../redux/userSlice";
 import { useDispatch } from "react-redux";
 const Login = () => {
@@ -16,7 +16,7 @@ const Login = () => {
       if (!email) {
       }
       try {
-        const { data } = await axios.post(LOCAL_USER + "/login", {
+        const { data } = await axios.post(BACKEND_USER + "/login", {
           email,
           password,
         });

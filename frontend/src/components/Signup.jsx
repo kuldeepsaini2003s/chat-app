@@ -2,7 +2,7 @@ import React, { useActionState, useState } from "react";
 import "./Signup.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { LOCAL_USER } from "../utils/constant";
+import { BACKEND_USER } from "../utils/constant";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/userSlice";
 
@@ -33,7 +33,7 @@ const Signup = () => {
       payload.append("avatar", file);
 
       try {
-        const { data } = await axios.post(LOCAL_USER + "/register", payload, {
+        const { data } = await axios.post(BACKEND_USER + "/register", payload, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -92,7 +92,7 @@ const Signup = () => {
               required
               onChange={handleFileChange}
               className="bg-[#008080] text-white px-4 py-2 rounded-md max-w-full w-52"
-            />  
+            />
           </div>
           <div className="w-full h-full place-items-center">
             {isPending ? (

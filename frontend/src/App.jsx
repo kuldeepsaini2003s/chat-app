@@ -10,7 +10,7 @@ import Login from "./components/Login";
 import LoginBlocker from "./hooks/LoginBlocker";
 import ProtectiveRoute from "./hooks/ProtectiveRoute";
 import { useEffect } from "react";
-import { LOCAL_USER } from "./utils/constant";
+import { BACKEND_USER } from "./utils/constant";
 import axios from "axios";
 import { setOnlineUsers, setUser } from "./redux/userSlice";
 import {
@@ -30,7 +30,7 @@ function App() {
   useEffect(() => {
     if (token && !user) {
       const fetchUser = async () => {
-        const { data } = await axios.get(LOCAL_USER + "/user", {
+        const { data } = await axios.get(BACKEND_USER + "/user", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
