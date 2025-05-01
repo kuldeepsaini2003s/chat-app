@@ -17,7 +17,7 @@ export const getUserSocketId = () => {
 function initSocket(server) {
   io = new Server(server, {
     cors: {
-      origin: [process.env.LOCAL_ORIGIN, process.env.BACKEND_ORIGIN],
+      origin: [process.env.LOCAL_ORIGIN, process.env.FRONTEND_ORIGIN],
       methods: ["GET", "POST"],
     },
   });
