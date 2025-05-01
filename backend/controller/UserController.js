@@ -170,7 +170,7 @@ export const logout = async (req, res) => {
   }
 };
 
-export const users = async (req, res) => {
+export const contacts = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate({
       path: "contacts",

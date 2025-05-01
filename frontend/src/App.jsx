@@ -30,7 +30,7 @@ function App() {
   useEffect(() => {
     if (token && !user) {
       const fetchUser = async () => {
-        const { data } = await axios.get(BACKEND_USER + "/user", {
+        const { data } = await axios.get(BACKEND_USER + "/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
