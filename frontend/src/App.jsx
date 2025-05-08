@@ -10,7 +10,7 @@ import Login from "./components/Login";
 import LoginBlocker from "./hooks/LoginBlocker";
 import ProtectiveRoute from "./hooks/ProtectiveRoute";
 import { useEffect } from "react";
-import { LOCAL_USER } from "./utils/constant";
+import { BACKEND_USER } from "./utils/constant";
 import axios from "axios";
 import {
   setActiveChat,
@@ -36,7 +36,7 @@ function App() {
   useEffect(() => {
     if (token && !user) {
       const fetchUser = async () => {
-        const { data } = await axios.get(LOCAL_USER + "/", {
+        const { data } = await axios.get(BACKEND_USER + "/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

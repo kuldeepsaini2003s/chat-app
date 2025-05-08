@@ -2,7 +2,7 @@ import React, { useActionState } from "react";
 import "./Signup.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { LOCAL_USER } from "../utils/constant";
+import { BACKEND_USER } from "../utils/constant";
 import { setUser } from "../redux/userSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -14,11 +14,12 @@ const Login = () => {
   const [formData, submitAction, isPending] = useActionState(
     async (previousState, formData) => {
       const email = formData?.get("email") || previousState?.email || "";
-      const password = formData?.get("password") || previousState?.password || "";
+      const password =
+        formData?.get("password") || previousState?.password || "";
       if (!email) {
       }
       try {
-        const { data } = await axios.post(LOCAL_USER + "/login", {
+        const { data } = await axios.post(BACKEND_USER + "/login", {
           email,
           password,
         });
@@ -28,7 +29,7 @@ const Login = () => {
           localStorage.setItem("refreshToken", data?.refreshToken);
           dispatch(setUser(data?.data));
           toast.success(data?.msg);
-          navigate("/");          
+          navigate("/");
         }
       } catch (error) {
         console.error("Error while login", error);

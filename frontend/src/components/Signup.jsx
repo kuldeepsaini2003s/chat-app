@@ -2,7 +2,7 @@ import React, { useActionState, useState } from "react";
 import "./Signup.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { LOCAL_USER } from "../utils/constant";
+import { BACKEND_USER } from "../utils/constant";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/userSlice";
 import { toast } from "react-toastify";
@@ -25,7 +25,8 @@ const Signup = () => {
     async (previousState, formData) => {
       const name = formData?.get("name") || previousState?.name || "";
       const email = formData?.get("email") || previousState?.email || "";
-      const password = formData?.get("password") || previousState?.password || "";
+      const password =
+        formData?.get("password") || previousState?.password || "";
 
       const payload = new FormData();
       payload.append("name", name);
@@ -34,7 +35,7 @@ const Signup = () => {
       payload.append("avatar", file);
 
       try {
-        const { data } = await axios.post(LOCAL_USER + "/register", payload, {
+        const { data } = await axios.post(BACKEND_USER + "/register", payload, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

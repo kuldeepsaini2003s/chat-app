@@ -26,7 +26,7 @@ export function getLastSeen(timeStr) {
   const now = new Date();
   const then = new Date(timeStr);
 
-  const isToday = now.toDateString() === then.toDateString();  
+  const isToday = now.toDateString() === then.toDateString();
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
