@@ -1,19 +1,22 @@
 import { X, Smile, Trash2, Plus, SendHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setConfirmationPop, setMediaFiles, setMediaPreview } from "../redux/stateSlice";
+import {
+  setConfirmationPop,
+  setMediaFiles,
+  setMediaPreview,
+} from "../redux/stateSlice";
 import { setMessages } from "../redux/messageSlice";
 import EmojiSelector from "./EmojiSelector";
 
-const MediaPreview = ({ data }) => {
-  const { setShowConfirmationPop } = useSelector((store) => store.state);
+const MediaPreview = () => {  
   const [caption, setCaption] = useState("");
   const [mediaSelected, setMediaSelected] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const documentRef = useRef(null);
   const emojiPickerRef = useRef(null);
-  const { mediaFiles } = useSelector((store) => store.state);
-  const { messages } = useSelector((store) => store.message);
+  const { mediaFiles } = useSelector((store) => store?.state);
+  const { messages } = useSelector((store) => store?.message);
   const dispatch = useDispatch();
   const inputRef = useRef(null);
 
@@ -28,29 +31,28 @@ const MediaPreview = ({ data }) => {
   };
 
   const removeMedia = () => {
-    const updateMedia = mediaFiles.filter(
+    const updateMedia = mediaFiles?.filter(
       (_, index) => index !== mediaSelected
     );
     dispatch(setMediaFiles(updateMedia));
 
-    if (mediaSelected >= updateMedia.length) {
-      setMediaSelected(updateMedia.length - 1);
+    if (mediaSelected >= updateMedia?.length) {
+      setMediaSelected(updateMedia?.length - 1);
     }
 
-    if (updateMedia.length === 0) {
+    if (updateMedia?.length === 0) {
       setMediaPreview(false);
     }
   };
 
   const closeMedia = () => {
-    dispatch(setConfirmationPop(true))
-    ;
+    dispatch(setConfirmationPop(true));
   };
 
   const handleSend = () => {
     const newMessage = {
       time: `${new Date().toLocaleDateString()}`,
-      media: mediaFiles.map((file, index) => ({
+      media: mediaFiles?.map((file, index) => ({
         ...file,
         caption: index === 0 ? caption.trim() : "",
       })),
@@ -79,7 +81,7 @@ const MediaPreview = ({ data }) => {
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      const mediaUrls = files.map((file) => ({
+      const mediaUrls = files?.map((file) => ({
         file,
         url: URL.createObjectURL(file),
       }));
@@ -89,14 +91,14 @@ const MediaPreview = ({ data }) => {
 
   const addEmoji = (emoji) => {
     setCaption((prev) => prev + emoji);
-    inputRef.current.focus();
+    inputRef?.current.focus();
   };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
-        emojiPickerRef.current &&
-        !emojiPickerRef.current.contains(e.target)
+        emojiPickerRef?.current &&
+        !emojiPickerRef?.current.contains(e.target)
       ) {
         setShowEmojiPicker(false);
       }
@@ -158,12 +160,12 @@ const MediaPreview = ({ data }) => {
                 alt="Selected media preview"
                 className="w-full max-h-[50%] object-contain"
               />
-              <p className="text-sm">{mediaFiles[mediaSelected].file.name}</p>
+              <p className="text-sm">{mediaFiles[mediaSelected]?.file?.name}</p>
             </>
           )}
           {mediaFiles[mediaSelected]?.file?.type?.startsWith("video/") && (
             <video
-              src={mediaFiles[mediaSelected].url}
+              src={mediaFiles[mediaSelected]?.url}
               controls
               alt="Selected media preview"
               className="w-full max-h-full object-contain"
@@ -220,7 +222,7 @@ const MediaPreview = ({ data }) => {
                 className={`w-14 h-12 relative rounded-md flex justify-center items-center bg-gray-300 shadow-2xl`}
               >
                 <img
-                  src={media.url}
+                  src={media?.url}
                   className="w-full h-full object-center rounded-md object-contain"
                   alt="media"
                 />

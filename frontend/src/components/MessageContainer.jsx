@@ -9,18 +9,18 @@ import { updateLastMessage } from "../redux/userSlice";
 
 const MessagesContainer = () => {
   useFetchRealTimeMessages();
-  const { messages } = useSelector((store) => store.message);
-  const { user, activeChat } = useSelector((store) => store.user);
+  const { messages } = useSelector((store) => store?.message);
+  const { user, activeChat } = useSelector((store) => store?.user);
   const dispatch = useDispatch();
   const socket = getSocket();
 
   useEffect(() => {
-    if (activeChat && messages.length > 0) {
-      const hasUnseenMessages = messages.some(
+    if (activeChat && messages?.length > 0) {
+      const hasUnseenMessages = messages?.some(
         (msg) =>
-          msg.senderId === activeChat?._id &&
-          msg.receiverId === user._id &&
-          msg.status === "delivered"
+          msg?.senderId === activeChat?._id &&
+          msg?.receiverId === user?._id &&
+          msg?.status === "delivered"
       );
 
       if (hasUnseenMessages) {
@@ -53,19 +53,19 @@ const MessagesContainer = () => {
         {messages?.map((message) =>
           message.type === "voice" ? (
             <VoiceMessage
-              key={message._id}
+              key={message?._id}
               message={message}
-              isSent={user?._id === message.senderId && true}
+              isSent={user?._id === message?.senderId && true}
             />
           ) : (
             <Message
-              key={message._id}
-              text={message.message}
-              time={message.time}
-              isSent={user?._id === message.senderId && true}
-              media={message.media}
-              status={message.status}
-              reaction={message.reaction}
+              key={message?._id}
+              text={message?.message}
+              time={message?.time}
+              isSent={user?._id === message?.senderId && true}
+              media={message?.media}
+              status={message?.status}
+              reaction={message?.reaction}
             />
           )
         )}

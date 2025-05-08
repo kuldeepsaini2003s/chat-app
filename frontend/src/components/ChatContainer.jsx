@@ -9,8 +9,9 @@ import { LOCAL_MESSAGE } from "../utils/constant";
 import axios from "axios";
 
 const ChatContainer = () => {
-  const { confirmationPop } = useSelector((store) => store.state);
-  const { activeChat, user } = useSelector((store) => store.user);
+  const { confirmationPop } = useSelector((store) => store?.state);
+  const { activeChat, user } = useSelector((store) => store?.user);
+  const { messages } = useSelector((store) => store?.message);
 
   const dispatch = useDispatch();
 
@@ -18,8 +19,8 @@ const ChatContainer = () => {
     const fetchData = async () => {
       try {
         const { data } = await axios.post(`${LOCAL_MESSAGE}/`, {
-          senderId: user._id,
-          receiverId: activeChat._id,
+          senderId: user?._id,
+          receiverId: activeChat?._id,
         });
         if (data.success) {
           dispatch(setMessages(data?.data));
@@ -29,11 +30,14 @@ const ChatContainer = () => {
         dispatch(setMessages([]));
       }
     };
-    fetchData();
-  }, [activeChat, dispatch]);
+
+    if (activeChat && !messages?.length > 0) {
+      fetchData();
+    }
+  }, [activeChat]);
 
   return (
-    <>
+    <div className="flex flex-col h-dvh">
       <ChatHeader />
       <MessageContainer />
       <MessageInput />
@@ -42,7 +46,7 @@ const ChatContainer = () => {
           <MediaConfirmationPop />
         </div>
       )}
-    </>
+    </div>
   );
 };
 

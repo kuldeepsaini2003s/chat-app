@@ -8,7 +8,7 @@ export const useFetch = (url, option = {}) => {
     const fetchData = async () => {
       try {
         const { data } = await axios.post(url, option);
-        if (data.success) {
+        if (data?.success) {
           setData(data?.data);
         }
       } catch (error) {

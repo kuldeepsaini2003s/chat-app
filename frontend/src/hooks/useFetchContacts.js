@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const useFetchContacts = () => {
   const dispatch = useDispatch();
-  const { user, onlineUsers } = useSelector((store) => store.user);
+  const { user, onlineUsers } = useSelector((store) => store?.user);
   const fetchContacts = async () => {
     const { data } = await axios.get(LOCAL_USER + "/contacts", {
       headers: {

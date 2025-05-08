@@ -23,9 +23,9 @@ const Signup = () => {
 
   const [formData, submitAction, isPending] = useActionState(
     async (previousState, formData) => {
-      const name = formData.get("name") || previousState.name || "";
-      const email = formData.get("email") || previousState.email || "";
-      const password = formData.get("password") || previousState.password || "";
+      const name = formData?.get("name") || previousState?.name || "";
+      const email = formData?.get("email") || previousState?.email || "";
+      const password = formData?.get("password") || previousState?.password || "";
 
       const payload = new FormData();
       payload.append("name", name);
@@ -39,7 +39,7 @@ const Signup = () => {
             "Content-Type": "multipart/form-data",
           },
         });
-        if (data.success) {
+        if (data?.success) {
           localStorage.setItem("accessToken", data?.accessToken);
           localStorage.setItem("refreshToken", data?.refreshToken);
           dispatch(setUser(data?.data));

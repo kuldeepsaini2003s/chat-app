@@ -8,7 +8,7 @@ import axios from "axios";
 import { LOCAL_MESSAGE } from "../utils/constant";
 
 const MessageInput = () => {
-  const { activeChat, user } = useSelector((store) => store.user);
+  const { activeChat, user } = useSelector((store) => store?.user);
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -22,15 +22,14 @@ const MessageInput = () => {
   const mediaPreviewRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const dispatch = useDispatch();
-  const { mediaPreview, mediaFiles } = useSelector((store) => store?.state);
-  const { messages } = useSelector((store) => store.message);
+  const { mediaPreview, mediaFiles } = useSelector((store) => store?.state);  
 
   const handleSendMessage = async () => {
     if (message.trim()) {
       const newMessage = {
         message: message,
-        senderId: user._id,
-        receiverId: activeChat._id,
+        senderId: user?._id,
+        receiverId: activeChat?._id,
         time: new Date(),
       };
       setMessage("");
@@ -98,7 +97,7 @@ const MessageInput = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 0) {
+    if (files?.length > 0) {
       const mediaUrls = files.map((file) => ({
         file,
         url: URL.createObjectURL(file),
@@ -112,6 +111,7 @@ const MessageInput = () => {
     e.target.value = null;
   };
   let typingTimeout;
+  
   if (!activeChat) return null;
 
   const handleInputChange = (e) => {
@@ -128,8 +128,8 @@ const MessageInput = () => {
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
     }, 500);
-  };  
-  
+  };
+
   return (
     <div>
       <div className="p-3 bg-gray-100 flex items-center relative">

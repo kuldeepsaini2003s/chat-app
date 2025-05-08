@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import React, { useEffect, useRef } from "react";
 
 const Message = ({ text, time, isSent, reaction, media, status }) => {
-  const { messages } = useSelector((store) => store.message);
+  const { messages } = useSelector((store) => store?.message);
   const handleOpen = (data, type) => {
     const blob = new Blob([data], { type });
     const url = URL.createObjectURL(blob);
@@ -21,7 +21,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
 
   const handleDownload = (url, filename) => {
     // insert fl_attachment into the Cloudinary URL to download file
-    const downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");    
+    const downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
 
     const link = document.createElement("a");
     link.href = downloadUrl;
@@ -69,7 +69,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                     Open
                   </button>
                   <button
-                    onClick={() => handleDownload(media.url, media.file.name)}
+                    onClick={() => handleDownload(media?.url, media?.file?.name)}
                     className="text-sm text-[#007bff] bg-white rounded-md p-2 w-full font-medium cursor-pointer"
                   >
                     Save
@@ -77,7 +77,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                 </div>
 
                 <div className="flex mt-2 justify-between items-end">
-                  <span className="text-sm break-words">{media.caption}</span>
+                  <span className="text-sm break-words">{media?.caption}</span>
                   <span className="text-[10px] flex gap-1  text-gray-500 pl-2 whitespace-nowrap">
                     {formatTime(time)}{" "}
                     <>
@@ -92,7 +92,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
 
                 {reaction && (
                   <div className="absolute -right-2 -bottom-2 bg-white rounded-xl px-1 py-0.5 shadow-sm text-xs">
-                    {reaction.emoji} {reaction.count}
+                    {reaction?.emoji} {reaction?.count}
                   </div>
                 )}
               </div>
@@ -124,7 +124,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                     Open
                   </button>
                   <button
-                    onClick={() => handleDownload(media.url, media.file.name)}
+                    onClick={() => handleDownload(media?.url, media?.file?.name)}
                     className="text-sm text-[#007bff] bg-white rounded-md p-2 w-full font-medium cursor-pointer"
                   >
                     Save
@@ -132,7 +132,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                 </div>
 
                 <div className="flex justify-between mt-2 items-end">
-                  <span className="text-sm break-words">{media.caption}</span>
+                  <span className="text-sm break-words">{media?.caption}</span>
                   <span className="text-[10px] flex gap-1  text-gray-500 pl-2 whitespace-nowrap">
                     {formatTime(time)}{" "}
                     <>
@@ -147,7 +147,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
 
                 {reaction && (
                   <div className="absolute -right-2 -bottom-2 bg-white rounded-xl px-1 py-0.5 shadow-sm text-xs">
-                    {reaction.emoji} {reaction.count}
+                    {reaction?.emoji} {reaction?.count}
                   </div>
                 )}
               </div>
@@ -159,7 +159,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                 }`}
               >
                 <button
-                  onClick={() => handleDownload(media.url, media.name)}
+                  onClick={() => handleDownload(media?.url, media?.name)}
                   className="cursor-pointer shadow-xl bg-white rounded-md p-2 absolute  right-4 top-3"
                 >
                   <Download />
@@ -170,7 +170,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                   className="w-[20rem] rounded-md h-[20rem] object-cover"
                 />
                 <div className="flex mt-2 justify-between items-end">
-                  <span className="text-sm break-words">{media.caption}</span>
+                  <span className="text-sm break-words">{media?.caption}</span>
                   <span className="text-[10px] flex gap-1  text-gray-500 pl-2 whitespace-nowrap">
                     {formatTime(time)}{" "}
                     <>

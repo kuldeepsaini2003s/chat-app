@@ -28,8 +28,8 @@ import {
 import { updateMessageStatus } from "./redux/messageSlice";
 
 function App() {
-  const { activeChat, user, contacts } = useSelector((store) => store.user);
-  const { messages } = useSelector((store) => store.message);
+  const { activeChat, user, contacts } = useSelector((store) => store?.user);
+  const { messages } = useSelector((store) => store?.message);
   const token = localStorage.getItem("accessToken");
   const dispatch = useDispatch();
 
@@ -41,7 +41,7 @@ function App() {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (data.success) {
+        if (data?.success) {
           dispatch(setUser(data?.data));
         }
       };
@@ -77,12 +77,12 @@ function App() {
   }, [socket, messages]);
 
   useEffect(() => {
-    if (activeChat && messages.length > 0) {
-      const hasUnseenMessages = messages.some(
+    if (activeChat && messages?.length > 0) {
+      const hasUnseenMessages = messages?.some(
         (msg) =>
-          msg.senderId === activeChat?._id &&
-          msg.receiverId === user._id &&
-          msg.status === "delivered"
+          msg?.senderId === activeChat?._id &&
+          msg?.receiverId === user?._id &&
+          msg?.status === "delivered"
       );
 
       if (hasUnseenMessages) {
@@ -105,7 +105,7 @@ function App() {
         if (lastMessage) {
           dispatch(updateLastMessage(lastMessage));
         }
-        if (activeChat.chatId === lastMessage.chatId) {
+        if (activeChat?.chatId === lastMessage?.chatId) {
           dispatch(setActiveChat({ ...activeChat, lastSeem: lastMessage }));
         }
       });
@@ -129,9 +129,15 @@ function App() {
           <Route
             path="/"
             element={
-              <div className="flex h-screen  bg-gray-100">
+              <div
+                className={`flex max-[748px]:flex-col h-screen  bg-gray-100`}
+              >
                 <Sidebar />
-                <div className="flex w-full flex-col relative w-3/4">
+                <div
+                  className={`flex ${
+                    !activeChat ? "max-[748px]:hidden" : ""
+                  } w-full flex-col relative w-3/4`}
+                >
                   {activeChat ? <ChatContainer /> : <WelcomeScreen />}
                 </div>
               </div>

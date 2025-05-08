@@ -13,8 +13,8 @@ const Login = () => {
 
   const [formData, submitAction, isPending] = useActionState(
     async (previousState, formData) => {
-      const email = formData.get("email") || previousState.email || "";
-      const password = formData.get("password") || previousState.password || "";
+      const email = formData?.get("email") || previousState?.email || "";
+      const password = formData?.get("password") || previousState?.password || "";
       if (!email) {
       }
       try {

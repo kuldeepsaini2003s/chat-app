@@ -12,7 +12,7 @@ import { setMessages } from "../redux/messageSlice";
 const Sidebar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
-  const { user, contacts } = useSelector((store) => store.user);
+  const { user, activeChat, contacts } = useSelector((store) => store?.user);
   const [popUp, setPopUp] = useState(false);
   const popUpRef = useRef(null);
 
@@ -62,7 +62,7 @@ const Sidebar = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      if (data.success) {
+      if (data?.success) {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         dispatch(setUser(null));
@@ -79,7 +79,11 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="min-w-[320px] max-w-[350px] flex flex-col border-r border-gray-200 bg-white">
+    <div
+      className={`${
+        activeChat ? "max-[748px]:hidden " : "flex-1"
+      } min-w-[320px] min-[748px]:max-w-[350px] flex flex-col border-r border-gray-200 bg-white`}
+    >
       <div className="p-3 relative bg-gray-100 flex justify-between items-center border-b border-gray-200">
         <div className="flex items-center ">
           <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden mr-2">
@@ -167,8 +171,8 @@ export const SearchResultPop = ({
 
     return (
       <>
-        {parts.map((part, index) =>
-          part.toLowerCase() === search.toLowerCase() ? (
+        {parts?.map((part, index) =>
+          part?.toLowerCase() === search?.toLowerCase() ? (
             <span key={index} className="text-[#19a54d] h-fit font-bold">
               {part}
             </span>
@@ -191,16 +195,16 @@ export const SearchResultPop = ({
         searchResult?.map((result) => (
           <div
             onClick={() => handleSearchClick(result)}
-            key={result._id}
+            key={result?._id}
             className="flex text-start  gap-3"
           >
             <img
               className="w-12 h-12 object-cover rounded-full "
-              src={result.avatar}
-              alt={result.name}
+              src={result?.avatar}
+              alt={result?.name}
             />
             <h1>
-              <HighlightText text={result.name} search={searchQuery} />
+              <HighlightText text={result?.name} search={searchQuery} />
             </h1>
           </div>
         ))
