@@ -1,5 +1,7 @@
 import { Server } from "socket.io";
 import { Message } from "../model/messageModel.js";
+import { Chat } from "../model/ChatModel.js";
+import { User } from "../model/UserModel.js";
 
 let io;
 let socket;
@@ -102,13 +104,42 @@ function initSocket(server) {
       }
     });
 
+    socket.on("lastMessage", async ({ senderId, receiverId }) => {
+      const senderSocket = userSocketMap[senderId];
+      const receiverSocket = userSocketMap[receiverId];
+
+      const chat = await Chat.find({
+        participants: { $all: [senderId, receiverId] },
+      }).populate({ path: "lastMessage", select: "message status createdAt" });
+
+      if (!chat || !chat[0].lastMessage) return;
+
+      const { message, status, createdAt } = chat[0].lastMessage;
+
+      const formattedMessage = {
+        chatId: chat[0]._id,
+        message,
+        status,
+        time: createdAt,
+      };
+
+      io.to(senderSocket).emit("lastMessage", formattedMessage);
+      io.to(receiverSocket).emit("lastMessage", formattedMessage);
+    });
+
     io.emit("getOnlineUser", Object.keys(userSocketMap));
 
-    socket.on("disconnect", () => {
-      console.log("user disconnected", socket.id);
+    socket.on("disconnect", async () => {
       // delete userSocketMap[userId];
       for (const key in userSocketMap) {
         if (userSocketMap[key] === socket.id) {
+          const user = await User.findByIdAndUpdate(
+            key,
+            {
+              lastSeen: new Date(),
+            },
+            { new: true }
+          );          
           delete userSocketMap[key];
           break;
         }

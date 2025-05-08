@@ -18,6 +18,6 @@ router.post("/login", login);
 router.get("/logout", verifyToken, logout);
 router.get("/contacts", verifyToken, contacts);
 router.get("/", verifyToken, user);
-router.get("/search", searchUser);
+router.get("/search", verifyToken, searchUser);
 
 export default router;

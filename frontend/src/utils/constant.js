@@ -22,6 +22,39 @@ export function formatTime(isoString) {
   });
 }
 
+export function getLastSeen(timeStr) {
+  const now = new Date();
+  const then = new Date(timeStr);
+
+  const isToday = now.toDateString() === then.toDateString();  
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const isYesterday = then.toDateString() === yesterday.toDateString();
+
+  if (isToday) {
+    return `Last seen ${then.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })}`;
+  } else if (isYesterday) {
+    return `Yesterday ${then.toLocaleTimeString("en-GB", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })}`;
+  } else {
+    return then.toLocaleDateString("en-US", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+}
+
 const LOCAL_BACKEND = import.meta.env.VITE_BACKEND_URL_LOCAL;
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 

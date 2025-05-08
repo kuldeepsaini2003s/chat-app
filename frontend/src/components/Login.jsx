@@ -2,9 +2,11 @@ import React, { useActionState } from "react";
 import "./Signup.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { BACKEND_USER } from "../utils/constant";
+import { LOCAL_USER } from "../utils/constant";
 import { setUser } from "../redux/userSlice";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -16,7 +18,7 @@ const Login = () => {
       if (!email) {
       }
       try {
-        const { data } = await axios.post(BACKEND_USER + "/login", {
+        const { data } = await axios.post(LOCAL_USER + "/login", {
           email,
           password,
         });
@@ -25,10 +27,12 @@ const Login = () => {
           localStorage.setItem("accessToken", data?.accessToken);
           localStorage.setItem("refreshToken", data?.refreshToken);
           dispatch(setUser(data?.data));
-          navigate("/");
+          toast.success(data?.msg);
+          navigate("/");          
         }
       } catch (error) {
         console.error("Error while login", error);
+        toast.error(error?.response?.data?.msg);
         return { email, password };
       }
     },

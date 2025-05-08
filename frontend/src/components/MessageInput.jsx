@@ -4,14 +4,13 @@ import { Paperclip, Smile } from "lucide-react";
 import MediaPreview from "./MediaPreview";
 import { useDispatch, useSelector } from "react-redux";
 import { setMediaFiles, setMediaPreview } from "../redux/stateSlice";
-import { setMessages } from "../redux/messageSlice";
 import axios from "axios";
-import { BACKEND_MESSAGE } from "../utils/constant";
-import useFetchRealTimeMessages from "../hooks/useFetchRealTimeMessages";
+import { LOCAL_MESSAGE } from "../utils/constant";
 
 const MessageInput = () => {
   const { activeChat, user } = useSelector((store) => store.user);
   const [message, setMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showAttachOptions, setShowAttachOptions] = useState(false);
   const inputRef = useRef(null);
@@ -21,9 +20,11 @@ const MessageInput = () => {
   const documentRef = useRef(null);
   const mediaRef = useRef(null);
   const mediaPreviewRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
   const dispatch = useDispatch();
   const { mediaPreview, mediaFiles } = useSelector((store) => store?.state);
   const { messages } = useSelector((store) => store.message);
+
   const handleSendMessage = async () => {
     if (message.trim()) {
       const newMessage = {
@@ -35,10 +36,7 @@ const MessageInput = () => {
       setMessage("");
       inputRef?.current?.focus();
       try {
-        const { data } = await axios.post(
-          BACKEND_MESSAGE + "/send",
-          newMessage
-        );
+        await axios.post(LOCAL_MESSAGE + "/send", newMessage);
       } catch (error) {
         console.error("Error while sending message", error);
       }
@@ -113,9 +111,25 @@ const MessageInput = () => {
     mediaRef?.current?.focus();
     e.target.value = null;
   };
-
+  let typingTimeout;
   if (!activeChat) return null;
 
+  const handleInputChange = (e) => {
+    // User starts typing
+    setIsTyping(true);
+    setMessage(e.target.value);
+
+    // Clear the previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set a new timeout to detect when user stops typing
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+    }, 500);
+  };  
+  
   return (
     <div>
       <div className="p-3 bg-gray-100 flex items-center relative">
@@ -207,7 +221,7 @@ const MessageInput = () => {
           className="flex-1 mx-3 px-3 py-2 p-2 bg-white rounded-lg border border-gray-200 outline-none text-sm"
           placeholder="Type a message"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyPress}
           ref={inputRef}
         />

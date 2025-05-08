@@ -174,7 +174,7 @@ export const contacts = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate({
       path: "contacts",
-      select: "name _id avatar",
+      select: "name _id avatar lastSeen",
     });
 
     if (!user) {
@@ -183,20 +183,21 @@ export const contacts = async (req, res) => {
         msg: "Users not found",
       });
     }
-    
+
     const chats = await Chat.find({
-      participants: { $all: [user._id], $in: user.contacts },
+      participants: { $all: [user._id], $elemMatch: { $in: user.contacts } },
     })
       .populate({
         path: "participants",
-        select: "name _id avatar isGroup lastSeen lastMessage",
+        select: "name _id avatar isGroup lastMessage",
         match: { _id: { $ne: user._id } },
       })
-      .populate({ path: "lastMessage", select: "message status" });
+      .populate({ path: "lastMessage", select: "message status createdAt" });
 
     const chatMap = new Map();
 
     const currentUserId = user._id.toString();
+    
     chats.forEach((chat) => {
       if (!chat.isGroup) {
         const otherParticipants = chat.participants.find(
@@ -217,6 +218,7 @@ export const contacts = async (req, res) => {
       lastMessage:
         chatMap.get(contact._id.toString())?.lastMessage.message || null,
       status: chatMap.get(contact._id.toString())?.lastMessage.status || null,
+      time: chatMap.get(contact._id.toString())?.lastMessage.createdAt || null,
       chatId: chatMap.get(contact._id.toString())?.chatId || null,
     }));
 
@@ -236,18 +238,30 @@ export const contacts = async (req, res) => {
 
 export const searchUser = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { query } = req.query;
 
-    if (!search) {
+    const userId = req.user._id;
+
+    if (!query) {
       return res.status(400).json({
         success: false,
         msg: "search query is required",
       });
     }
 
-    const query = new RegExp(search, "i");
+    const searchQuery = new RegExp(query, "i");
 
-    const users = await User.find({ name: query }).select("name avatar _id");
+    const users = await User.find({
+      name: searchQuery,
+      _id: { $ne: userId },
+    }).select("name avatar _id");
+
+    if (!users.length > 0) {
+      return res.status(400).json({
+        success: false,
+        msg: "Hmm... looks like no one by that name is here yet.",
+      });
+    }
 
     return res.status(200).json({
       success: true,

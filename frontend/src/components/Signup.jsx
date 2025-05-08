@@ -2,9 +2,10 @@ import React, { useActionState, useState } from "react";
 import "./Signup.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { BACKEND_USER } from "../utils/constant";
+import { LOCAL_USER } from "../utils/constant";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/userSlice";
+import { toast } from "react-toastify";
 
 const Signup = () => {
   const [preview, setPreview] = useState("/Photo.png");
@@ -33,7 +34,7 @@ const Signup = () => {
       payload.append("avatar", file);
 
       try {
-        const { data } = await axios.post(BACKEND_USER + "/register", payload, {
+        const { data } = await axios.post(LOCAL_USER + "/register", payload, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -42,10 +43,12 @@ const Signup = () => {
           localStorage.setItem("accessToken", data?.accessToken);
           localStorage.setItem("refreshToken", data?.refreshToken);
           dispatch(setUser(data?.data));
+          toast.success(data?.msg);
           navigate("/");
         }
       } catch (error) {
         console.error("Error while register", error);
+        toast.error(error?.response?.data?.msg);
         return { name, email, password };
       }
     },
@@ -84,7 +87,7 @@ const Signup = () => {
           <div className="flex items-center gap-5 justify-between mt-[15px]">
             <img
               src={preview}
-              className="border flex-shrink-0 rounded-full w-12 h-12"
+              className="border object-cover flex-shrink-0 rounded-full w-12 h-12"
               alt=""
             />
             <input

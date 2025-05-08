@@ -11,7 +11,6 @@ cloudinary.config({
 });
 
 const uploadOnCloudinary = async (localFilePath) => {
-  console.log(localFilePath);
   try {
     const uploadstream = await cloudinary.uploader.upload(localFilePath, {
       public_id: `Chat_App_${new Date().toISOString().replace(/[:.]/g, "-")}`,

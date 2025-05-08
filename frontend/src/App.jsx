@@ -10,19 +10,25 @@ import Login from "./components/Login";
 import LoginBlocker from "./hooks/LoginBlocker";
 import ProtectiveRoute from "./hooks/ProtectiveRoute";
 import { useEffect } from "react";
-import { BACKEND_USER } from "./utils/constant";
+import { LOCAL_USER } from "./utils/constant";
 import axios from "axios";
-import { setOnlineUsers, setUser } from "./redux/userSlice";
+import {
+  setActiveChat,
+  setOnlineUsers,
+  setUser,
+  updateLastMessage,
+} from "./redux/userSlice";
 import {
   connectSocket,
   disconnectSocket,
+  emitEvent,
   getSocket,
   onEvent,
 } from "../socket/socket";
-import { setMessages } from "./redux/messageSlice";
+import { updateMessageStatus } from "./redux/messageSlice";
 
 function App() {
-  const { activeChat, user } = useSelector((store) => store.user);
+  const { activeChat, user, contacts } = useSelector((store) => store.user);
   const { messages } = useSelector((store) => store.message);
   const token = localStorage.getItem("accessToken");
   const dispatch = useDispatch();
@@ -30,7 +36,7 @@ function App() {
   useEffect(() => {
     if (token && !user) {
       const fetchUser = async () => {
-        const { data } = await axios.get(BACKEND_USER + "/", {
+        const { data } = await axios.get(LOCAL_USER + "/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -66,13 +72,55 @@ function App() {
 
   useEffect(() => {
     onEvent("messageDelivered", (id) => {
-      console.log("new Message Id:", id);
-      const updateMessage = messages?.map((msg) =>
-        msg._id === id ? { ...msg, status: "delivered" } : msg
-      );
-      dispatch(setMessages(updateMessage));
+      dispatch(updateMessageStatus({ id, status: "delivered" }));
     });
   }, [socket, messages]);
+
+  useEffect(() => {
+    if (activeChat && messages.length > 0) {
+      const hasUnseenMessages = messages.some(
+        (msg) =>
+          msg.senderId === activeChat?._id &&
+          msg.receiverId === user._id &&
+          msg.status === "delivered"
+      );
+
+      if (hasUnseenMessages) {
+        emitEvent("messageSeen", {
+          senderId: activeChat?._id,
+          receiverId: user?._id,
+        });
+      }
+
+      onEvent("messageSeen", (id) => {
+        dispatch(updateMessageStatus({ id, status: "seen" }));
+      });
+
+      emitEvent("lastMessage", {
+        senderId: activeChat?._id,
+        receiverId: user?._id,
+      });
+
+      onEvent("lastMessage", (lastMessage) => {
+        if (lastMessage) {
+          dispatch(updateLastMessage(lastMessage));
+        }
+        if (activeChat.chatId === lastMessage.chatId) {
+          dispatch(setActiveChat({ ...activeChat, lastSeem: lastMessage }));
+        }
+      });
+    }
+  }, [activeChat, user, messages]);
+
+  useEffect(() => {
+    if (contacts) {
+      contacts?.find(
+        (chat) =>
+          chat?.chatId === activeChat?.chatId &&
+          dispatch(setActiveChat({ ...activeChat, lastSeen: chat?.lastSeen }))
+      );
+    }
+  }, [contacts]);
 
   return (
     <BrowserRouter>

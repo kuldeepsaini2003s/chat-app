@@ -21,10 +21,7 @@ const userSchema = new Schema(
     avatar: {
       type: String,
       require: true,
-    },
-    isOnline: {
-      type: Boolean,
-    },
+    },    
     lastSeen: {
       type: Date,
     },

@@ -21,10 +21,26 @@ const userSlice = createSlice({
     setOnlineUsers: (state, action) => {
       state.onlineUsers = action.payload;
     },
+    updateLastMessage: (state, action) => {
+      const lastMessage = action.payload;
+      const updateMessage = state.contacts.find(
+        (chat) => chat.chatId === lastMessage.chatId
+      );
+      if (updateMessage) {
+        updateMessage.lastMessage = lastMessage.message;
+        updateMessage.time = lastMessage.time;
+        updateMessage.status = lastMessage.status;
+      }
+    },
   },
 });
 
-export const { setUser, setContacts, setActiveChat, setOnlineUsers } =
-  userSlice.actions;
+export const {
+  setUser,
+  setContacts,
+  setActiveChat,
+  setOnlineUsers,
+  updateLastMessage,
+} = userSlice.actions;
 
 export default userSlice.reducer;

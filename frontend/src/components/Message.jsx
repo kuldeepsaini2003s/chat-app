@@ -21,8 +21,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
 
   const handleDownload = (url, filename) => {
     // insert fl_attachment into the Cloudinary URL to download file
-    const downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
-    console.log(downloadUrl);
+    const downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");    
 
     const link = document.createElement("a");
     link.href = downloadUrl;

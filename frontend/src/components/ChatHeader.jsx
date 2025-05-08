@@ -1,9 +1,20 @@
 import { Phone, Search, Video } from "lucide-react";
 import { useSelector } from "react-redux";
+import { getLastSeen } from "../utils/constant";
+import { useEffect, useState } from "react";
 
 const ChatHeader = () => {
-  const { activeChat, onlineUsers } = useSelector((store) => store.user);
-  const isOnline = onlineUsers.includes(activeChat._id) ? "Online" : "Offline";
+  const { activeChat, onlineUsers, contacts } = useSelector((store) => store.user);
+  const [lastSeem, setLastSeen] = useState("");
+
+  useEffect(() => {
+    const isOnline = onlineUsers.includes(activeChat._id)
+      ? "Online"
+      : `${getLastSeen(activeChat.lastSeen)}`;
+    setLastSeen(isOnline);
+    
+  }, [onlineUsers, activeChat, contacts]);
+
   return (
     <div className="p-3 bg-gray-100 flex justify-between items-center border-b border-gray-200">
       <div className="flex items-center">
@@ -16,7 +27,7 @@ const ChatHeader = () => {
         </div>
         <div>
           <div className="font-medium">{activeChat.name}</div>
-          <div className="text-xs text-gray-500">{isOnline}</div>
+          <div className="text-xs text-gray-500">{lastSeem}</div>
         </div>
       </div>
       <div className="flex gap-4 text-gray-600">

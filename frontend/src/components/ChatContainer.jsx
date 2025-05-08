@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageContainer from "./MessageContainer";
 import { setMessages } from "../redux/messageSlice";
-import { BACKEND_MESSAGE } from "../utils/constant";
+import { LOCAL_MESSAGE } from "../utils/constant";
 import axios from "axios";
 
 const ChatContainer = () => {
@@ -17,7 +17,7 @@ const ChatContainer = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await axios.post(`${BACKEND_MESSAGE}/`, {
+        const { data } = await axios.post(`${LOCAL_MESSAGE}/`, {
           senderId: user._id,
           receiverId: activeChat._id,
         });
@@ -26,6 +26,7 @@ const ChatContainer = () => {
         }
       } catch (error) {
         console.error("Error while fetching data", error);
+        dispatch(setMessages([]));
       }
     };
     fetchData();

@@ -3,11 +3,11 @@ import { Message } from "../model/messageModel.js";
 import { User } from "../model/UserModel.js";
 import { uploadOnCloudinary } from "../utils/uploadToCloudinary.js";
 import { Media } from "../model/MediaModel.js";
-import { io, getSocketId, getUserSocketId } from "../socket/socket.js";
+import { io, getSocketId } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
   try {
-    const { senderId, receiverId, message, time } = req.body;
+    const { senderId, receiverId, message } = req.body;
 
     if (!senderId || !receiverId) {
       return res.status(400).json({
@@ -73,8 +73,6 @@ export const sendMessage = async (req, res) => {
 
     await chats.save();
 
-    const userSocketMap = getUserSocketId();
-
     const receiverSocketId = getSocketId(receiverId);
     const senderSocketId = getSocketId(senderId);
 
@@ -84,6 +82,7 @@ export const sendMessage = async (req, res) => {
       io.to(senderSocketId).emit("newMessage", {
         ...message.toObject(),
         time: message.createdAt,
+        chatId: chats._id,
       });
     }
 
@@ -97,10 +96,18 @@ export const sendMessage = async (req, res) => {
           new: true,
         }
       );
+      chats = await Chat.findOne({
+        participants: { $all: [senderId, receiverId] },
+      }).populate({ path: "lastMessage", select: "message status createdAt" });
 
       io.to(receiverSocketId).emit("newMessage", {
         ...message.toObject(),
         time: message.createdAt,
+        chatId: chats._id,
+      });
+
+      io.to(receiverSocketId).emit("lastMessage", {
+        lastMessage: chats.lastMessage,
       });
 
       io.emit("messageDelivered", message?.id);
@@ -134,10 +141,15 @@ export const messages = async (req, res) => {
       participants: { $all: [senderId, receiverId] },
     }).populate("messages");
 
+    if (!chats) {
+      return res.status(400).json({
+        success: false,
+        msg: "No conversation found",
+      });
+    }
+
     const allMessagesIds = chats.messages.map((m) => m._id);
-
     const allMedia = await Media.find({ messageId: { $in: allMessagesIds } });
-
     const mediaMap = {};
 
     allMedia.map((media) => {

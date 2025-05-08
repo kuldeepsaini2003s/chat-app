@@ -2,9 +2,10 @@ import { useDispatch, useSelector } from "react-redux";
 import Message from "./Message";
 import VoiceMessage from "./VoiceMessage";
 import { useEffect } from "react";
-import { setMessages, updateMessageStatus } from "../redux/messageSlice";
+import { updateMessageStatus } from "../redux/messageSlice";
 import { emitEvent, getSocket, onEvent } from "../../socket/socket";
 import useFetchRealTimeMessages from "../hooks/useFetchRealTimeMessages";
+import { updateLastMessage } from "../redux/userSlice";
 
 const MessagesContainer = () => {
   useFetchRealTimeMessages();
@@ -14,12 +15,6 @@ const MessagesContainer = () => {
   const socket = getSocket();
 
   useEffect(() => {
-    onEvent("messageDelivered", (id) => {
-      dispatch(updateMessageStatus({ id, status: "delivered" }));
-    });
-  }, [socket, messages]);
-
-  useEffect(() => {
     if (activeChat && messages.length > 0) {
       const hasUnseenMessages = messages.some(
         (msg) =>
@@ -27,7 +22,6 @@ const MessagesContainer = () => {
           msg.receiverId === user._id &&
           msg.status === "delivered"
       );
-      console.log("working", hasUnseenMessages);
 
       if (hasUnseenMessages) {
         emitEvent("messageSeen", {
@@ -38,6 +32,17 @@ const MessagesContainer = () => {
 
       onEvent("messageSeen", (id) => {
         dispatch(updateMessageStatus({ id, status: "seen" }));
+      });
+
+      emitEvent("lastMessage", {
+        senderId: activeChat?._id,
+        receiverId: user?._id,
+      });
+
+      onEvent("lastMessage", (lastMessage) => {
+        if (lastMessage) {
+          dispatch(updateLastMessage(lastMessage));
+        }
       });
     }
   }, [activeChat, user, messages]);
