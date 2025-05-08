@@ -2,6 +2,7 @@
 
 :root {
   --default-font-family: "Mulish", "Poppins", sans-serif;
+  --vh: 1vh;
 }
 s
 
@@ -151,7 +152,7 @@ s
 }
 
 .chat-container-scrollbar {
-  overflow-y: auto;  
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
@@ -179,4 +180,8 @@ s
   display: none;
   width: 0;
   height: 0;
+}
+
+.h-real-vh {
+  height: calc(var(--vh, 1vh) * 100);
 }

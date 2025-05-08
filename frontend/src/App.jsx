@@ -122,6 +122,18 @@ function App() {
     }
   }, [contacts]);
 
+  // Call this on page load and resize
+  function setRealViewportHeight() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty("--vh", `${vh}px`);
+  }
+
+  useEffect(() => {
+    setRealViewportHeight();
+    window.addEventListener("resize", setRealViewportHeight);
+    return () => window.removeEventListener("resize", setRealViewportHeight);
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

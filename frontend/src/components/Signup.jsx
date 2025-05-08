@@ -57,7 +57,7 @@ const Signup = () => {
   );
 
   return (
-    <div className="flex justify-center items-center bg-[#e8e8e8] h-dvh w-dvw">
+    <div className="flex justify-center items-center bg-[#e8e8e8] h-real-vh w-dvw">
       <div className="form-container">
         <p className="title">Create account</p>
         <form action={submitAction} className="form text-sm">

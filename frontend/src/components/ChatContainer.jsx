@@ -37,12 +37,12 @@ const ChatContainer = () => {
   }, [activeChat]);
 
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex flex-col h-real-vh">
       <ChatHeader />
       <MessageContainer />
       <MessageInput />
       {confirmationPop && (
-        <div className="absolute z-10 h-dvh top-0 w-full flex items-center justify-center">
+        <div className="absolute z-10 h-real-vh top-0 w-full flex items-center justify-center">
           <MediaConfirmationPop />
         </div>
       )}
