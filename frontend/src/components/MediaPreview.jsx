@@ -6,23 +6,24 @@ import {
   setMediaFiles,
   setMediaPreview,
 } from "../redux/stateSlice";
-import { setMessages } from "../redux/messageSlice";
 import EmojiSelector from "./EmojiSelector";
+import { LOCAL_MESSAGE } from "../utils/constant";
+import axios from "axios";
 
-const MediaPreview = () => {  
+const MediaPreview = ({ inputRef }) => {
   const [caption, setCaption] = useState("");
   const [mediaSelected, setMediaSelected] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const documentRef = useRef(null);
   const emojiPickerRef = useRef(null);
   const { mediaFiles } = useSelector((store) => store?.state);
-  const { messages } = useSelector((store) => store?.message);
+  const { user, activeChat } = useSelector((store) => store?.user);
   const dispatch = useDispatch();
-  const inputRef = useRef(null);
+  const captionRef = useRef(null);
 
   useEffect(() => {
     if (mediaFiles.length > 0) {
-      inputRef?.current?.focus();
+      captionRef?.current?.focus();
     }
   }, [mediaFiles]);
 
@@ -49,29 +50,31 @@ const MediaPreview = () => {
     dispatch(setConfirmationPop(true));
   };
 
-  const handleSend = () => {
-    const newMessage = {
-      time: `${new Date().toLocaleDateString()}`,
-      media: mediaFiles?.map((file, index) => ({
+  const handleSend = async () => {
+    const payload = new FormData();
+
+    mediaFiles?.forEach((file, index) => {
+      const fileData = {
         ...file,
         caption: index === 0 ? caption.trim() : "",
-      })),
-      type: "media",
-      sender: "me",
-    };
-    dispatch(setMessages([...messages, newMessage]));
+      };
+      payload.append("media", fileData);
+    });
+
+    payload.append("time", new Date());
+    payload.append("senderId", user?._id);
+    payload.append("receiverId", activeChat._id);
+
+    try {
+      await axios.post(LOCAL_MESSAGE + "/send", payload);
+    } catch (error) {
+      console.error("Error while sending message", error);
+    }
+
+    inputRef.current.focus();
     dispatch(setMediaPreview(false));
     dispatch(setMediaFiles([]));
     setCaption("");
-
-    setTimeout(() => {
-      const response = {
-        text: "Great! Looking forward to it.",
-        time: "now",
-        sender: "them",
-      };
-      setMessages((prev) => [...prev, response]);
-    }, 1500);
   };
 
   const handleAddFile = () => {
@@ -91,7 +94,7 @@ const MediaPreview = () => {
 
   const addEmoji = (emoji) => {
     setCaption((prev) => prev + emoji);
-    inputRef?.current.focus();
+    captionRef?.current.focus();
   };
 
   useEffect(() => {
@@ -255,7 +258,7 @@ const MediaPreview = () => {
             <input
               type="text"
               placeholder="Add a caption..."
-              ref={inputRef}
+              ref={captionRef}
               className="flex-1 bg-transparent outline-none px-2 text-gray-800 placeholder-gray-500"
               value={caption}
               onKeyDown={(e) => {

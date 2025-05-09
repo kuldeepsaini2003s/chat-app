@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MediaConfirmationPop from "./MediaConfirmationPop";
 import ChatHeader from "./ChatHeader";
@@ -37,12 +37,12 @@ const ChatContainer = () => {
   }, [activeChat]);
 
   return (
-    <div className="flex flex-col h-real-vh">
+    <div className="flex flex-col h-svh">
       <ChatHeader />
       <MessageContainer />
       <MessageInput />
       {confirmationPop && (
-        <div className="absolute z-10 h-real-vh top-0 w-full flex items-center justify-center">
+        <div className="absolute z-10 h-svh top-0 w-full flex items-center justify-center">
           <MediaConfirmationPop />
         </div>
       )}

@@ -5,12 +5,11 @@ import MediaPreview from "./MediaPreview";
 import { useDispatch, useSelector } from "react-redux";
 import { setMediaFiles, setMediaPreview } from "../redux/stateSlice";
 import axios from "axios";
-import { BACKEND_MESSAGE } from "../utils/constant";
+import { BACKEND_MESSAGE, LOCAL_MESSAGE } from "../utils/constant";
 
 const MessageInput = () => {
   const { activeChat, user } = useSelector((store) => store?.user);
   const [message, setMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showAttachOptions, setShowAttachOptions] = useState(false);
   const inputRef = useRef(null);
@@ -20,7 +19,7 @@ const MessageInput = () => {
   const documentRef = useRef(null);
   const mediaRef = useRef(null);
   const mediaPreviewRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
+  // const typingTimeoutRef = useRef(null);
   const dispatch = useDispatch();
   const { mediaPreview, mediaFiles } = useSelector((store) => store?.state);
 
@@ -35,7 +34,7 @@ const MessageInput = () => {
       setMessage("");
       inputRef?.current?.focus();
       try {
-        await axios.post(BACKEND_MESSAGE + "/send", newMessage);
+        await axios.post(LOCAL_MESSAGE + "/send", newMessage);
       } catch (error) {
         console.error("Error while sending message", error);
       }
@@ -116,18 +115,18 @@ const MessageInput = () => {
 
   const handleInputChange = (e) => {
     // User starts typing
-    setIsTyping(true);
+    // setIsTyping(true);
     setMessage(e.target.value);
 
-    // Clear the previous timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    // // Clear the previous timeout
+    // if (typingTimeoutRef.current) {
+    //   clearTimeout(typingTimeoutRef.current);
+    // }
 
-    // Set a new timeout to detect when user stops typing
-    typingTimeoutRef.current = setTimeout(() => {
-      setIsTyping(false);
-    }, 500);
+    // // Set a new timeout to detect when user stops typing
+    // typingTimeoutRef.current = setTimeout(() => {
+    //   setIsTyping(false);
+    // }, 500);
   };
 
   return (
@@ -212,7 +211,7 @@ const MessageInput = () => {
 
         {mediaPreview && (
           <div ref={mediaPreviewRef} className="absolute bottom-3 left-3 z-10">
-            <MediaPreview />
+            <MediaPreview inputRef={inputRef} />
           </div>
         )}
 

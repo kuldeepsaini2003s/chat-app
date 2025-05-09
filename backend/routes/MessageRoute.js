@@ -8,10 +8,6 @@ router.post(
   "/send",
   upload().fields([
     {
-      name: "avatar",
-      maxCount: 1,
-    },
-    {
       name: "media",
       maxCount: 10,
     },

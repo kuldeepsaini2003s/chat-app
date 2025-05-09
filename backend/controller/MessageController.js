@@ -7,6 +7,9 @@ import { io, getSocketId } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
   try {
+    console.log("Body data", req.body);
+    console.log("Req. files ", req.files);
+
     const { senderId, receiverId, message } = req.body;
 
     if (!senderId || !receiverId) {

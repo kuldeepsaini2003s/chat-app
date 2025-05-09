@@ -48,7 +48,7 @@ const MessagesContainer = () => {
   }, [activeChat, user, messages]);
 
   return (
-    <div className="flex-1 p-4 chat-container-scrollbar">
+    <div className="flex-1 p-2 chat-container-scrollbar">
       <div className="flex  flex-col gap-2">
         {messages?.map((message) =>
           message.type === "voice" ? (

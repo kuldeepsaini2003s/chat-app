@@ -69,7 +69,9 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                     Open
                   </button>
                   <button
-                    onClick={() => handleDownload(media?.url, media?.file?.name)}
+                    onClick={() =>
+                      handleDownload(media?.url, media?.file?.name)
+                    }
                     className="text-sm text-[#007bff] bg-white rounded-md p-2 w-full font-medium cursor-pointer"
                   >
                     Save
@@ -124,7 +126,9 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                     Open
                   </button>
                   <button
-                    onClick={() => handleDownload(media?.url, media?.file?.name)}
+                    onClick={() =>
+                      handleDownload(media?.url, media?.file?.name)
+                    }
                     className="text-sm text-[#007bff] bg-white rounded-md p-2 w-full font-medium cursor-pointer"
                   >
                     Save
@@ -217,6 +221,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
           )}
         </div>
       )}
+      
     </>
   );
 };
