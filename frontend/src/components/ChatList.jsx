@@ -7,7 +7,10 @@ const ChatList = () => {
   const dispatch = useDispatch();
   const handleClick = (chat) => {
     dispatch(setActiveChat(chat));
-  };
+    if (window.innerWidth < 748) {
+      window.history.pushState({ chatOpen: true }, "");      
+    }
+  };  
   return (
     <div className="flex-1 p-2 rounded-md overflow-y-auto remove-scrollbar">
       <div className="flex flex-col gap-1">

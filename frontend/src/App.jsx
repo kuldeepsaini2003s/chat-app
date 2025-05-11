@@ -9,7 +9,7 @@ import Signup from "./components/Signup";
 import Login from "./components/Login";
 import LoginBlocker from "./hooks/LoginBlocker";
 import ProtectiveRoute from "./hooks/ProtectiveRoute";
-import { useEffect } from "react";
+import { act, useEffect, useRef } from "react";
 import { BACKEND_USER } from "./utils/constant";
 import axios from "axios";
 import {
@@ -31,6 +31,7 @@ function App() {
   const { activeChat, user, contacts } = useSelector((store) => store?.user);
   const { messages } = useSelector((store) => store?.message);
   const token = localStorage.getItem("accessToken");
+  const activeChatRef = useRef(activeChat);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -132,6 +133,20 @@ function App() {
     setRealViewportHeight();
     window.addEventListener("resize", setRealViewportHeight);
     return () => window.removeEventListener("resize", setRealViewportHeight);
+  }, []);
+
+  useEffect(() => {
+    activeChatRef.current = activeChat;
+  }, [activeChat]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (activeChatRef.current) {
+        dispatch(setActiveChat(null));
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   return (
