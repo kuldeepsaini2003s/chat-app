@@ -33,19 +33,21 @@ const MessagesContainer = () => {
       onEvent("messageSeen", (id) => {
         dispatch(updateMessageStatus({ id, status: "seen" }));
       });
-
-      emitEvent("lastMessage", {
-        senderId: activeChat?._id,
-        receiverId: user?._id,
-      });
-
-      onEvent("lastMessage", (lastMessage) => {
-        if (lastMessage) {
-          dispatch(updateLastMessage(lastMessage));
-        }
-      });
     }
-  }, [activeChat, user, messages]);
+  }, [activeChat, messages]);
+
+  useEffect(() => {
+    emitEvent("lastMessage", {
+      senderId: activeChat?._id,
+      receiverId: user?._id,
+    });
+
+    onEvent("lastMessage", (lastMessage) => {
+      if (lastMessage) {
+        dispatch(updateLastMessage(lastMessage));
+      }
+    });
+  }, [messages]);
 
   return (
     <div className="flex-1 p-2 chat-container-scrollbar">

@@ -4,12 +4,10 @@ import { User } from "../model/UserModel.js";
 import { uploadOnCloudinary } from "../utils/uploadToCloudinary.js";
 import { Media } from "../model/MediaModel.js";
 import { io, getSocketId } from "../socket/socket.js";
+import { extraFileExtension } from "../utils/extraFileExtension.js";
 
 export const sendMessage = async (req, res) => {
   try {
-    console.log("Body data", req.body);
-    console.log("Req. files ", req.files);
-
     const { senderId, receiverId, message } = req.body;
 
     if (!senderId || !receiverId) {
@@ -57,23 +55,6 @@ export const sendMessage = async (req, res) => {
       chats.lastMessage = newMessage._id;
     }
 
-    if (req?.files && req?.files?.media?.length > 0) {
-      const mediaPromise = req?.files?.media.map(async (file) => {
-        const fileUrl = await uploadOnCloudinary(file.path);
-
-        return {
-          messageId: newMessage._id,
-          url: fileUrl?.secure_url,
-          type: fileUrl?.format,
-          name: fileUrl?.display_name,
-          size: fileUrl?.bytes,
-        };
-      });
-
-      const mediaData = await Promise.all(mediaPromise);
-      await Media.insertMany(mediaData);
-    }
-
     await chats.save();
 
     const receiverSocketId = getSocketId(receiverId);
@@ -81,7 +62,6 @@ export const sendMessage = async (req, res) => {
 
     if (senderSocketId) {
       const message = await Message.findById(newMessage._id);
-
       io.to(senderSocketId).emit("newMessage", {
         ...message.toObject(),
         time: message.createdAt,
@@ -109,10 +89,6 @@ export const sendMessage = async (req, res) => {
         chatId: chats._id,
       });
 
-      io.to(receiverSocketId).emit("lastMessage", {
-        lastMessage: chats.lastMessage,
-      });
-
       io.emit("messageDelivered", message?.id);
     }
 
@@ -122,6 +98,135 @@ export const sendMessage = async (req, res) => {
     });
   } catch (error) {
     console.log("Error while sending message", error);
+    return res.status(500).json({
+      success: false,
+      msg: "Something went wrong",
+    });
+  }
+};
+
+export const mediaUpload = async (req, res) => {
+  try {
+    const { message, senderId, receiverId } = req.body;
+    const mediaFile = req.files;
+
+    if (!mediaFile || !senderId || !receiverId) {
+      return res.status(400).json({
+        success: false,
+        msg: "All fields are required",
+      });
+    }
+
+    let userFriend = await User.findOne({
+      _id: receiverId,
+      contacts: { $in: [senderId] },
+    });
+
+    if (!userFriend) {
+      await Promise.all([
+        User.findByIdAndUpdate(receiverId, {
+          $addToSet: { contacts: senderId },
+        }),
+        User.findByIdAndUpdate(senderId, {
+          $addToSet: { contacts: receiverId },
+        }),
+      ]);
+    }
+
+    let chats = await Chat.findOne({
+      participants: { $all: [senderId, receiverId] },
+    });
+
+    if (!chats) {
+      chats = await Chat.create({
+        participants: [senderId, receiverId],
+        messages: [],
+      });
+    }
+
+    const newMessage = await Message.create({
+      senderId,
+      receiverId,
+      message,
+    });
+
+    if (!req?.files && req?.files?.media?.length > 0) {
+      return res.status(400).json({
+        success: false,
+        msg: "Media file is required",
+      });
+    }
+
+    const mediaPromise = req?.files?.media.map(async (file) => {
+      const { path, originalname, mimetype } = file;
+      const fileUrl = await uploadOnCloudinary(path, originalname, mimetype);
+      const type = extraFileExtension(fileUrl.secure_url);
+      return {
+        messageId: newMessage._id,
+        url: fileUrl?.secure_url,
+        type,
+        name: originalname,
+        size: fileUrl?.bytes,
+      };
+    });
+
+    const mediaData = await Promise.all(mediaPromise);
+
+    await Media.insertMany(mediaData);
+
+    chats.messages.push(newMessage._id);
+    chats.lastMessage = newMessage._id;
+
+    const receiverSocketId = getSocketId(receiverId);
+    const senderSocketId = getSocketId(senderId);
+    chats.save();
+
+    if (receiverSocketId) {
+      const updateMessage = await Message.findByIdAndUpdate(
+        newMessage._id,
+        {
+          status: "delivered",
+        },
+        {
+          new: true,
+        }
+      );
+
+      const media = await Media.find({ messageId: { $in: updateMessage._id } });
+
+      if (media) {
+        io.to(receiverSocketId).emit("newMessage", {
+          ...updateMessage.toObject(),
+          time: updateMessage.createdAt,
+          chatId: chats._id,
+          media,
+        });
+      }
+
+      io.to(receiverSocketId).emit("lastMessage", {
+        lastMessage: chats.lastMessage,
+      });
+
+      io.emit("messageDelivered", updateMessage?.id);
+    }
+    if (senderSocketId) {
+      const message = await Message.findById(newMessage._id);
+      const media = await Media.find({ messageId: { $in: message._id } });
+
+      io.to(senderSocketId).emit("newMessage", {
+        ...message.toObject(),
+        time: message.createdAt,
+        chatId: chats._id,
+        media,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      msg: "Media uploaded successfully",
+    });
+  } catch (error) {
+    console.log("Error while uploading media", error);
     return res.status(500).json({
       success: false,
       msg: "Something went wrong",

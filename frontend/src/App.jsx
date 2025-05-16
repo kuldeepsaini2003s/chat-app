@@ -33,6 +33,13 @@ function App() {
   const token = localStorage.getItem("accessToken");
   const activeChatRef = useRef(activeChat);
   const dispatch = useDispatch();
+  const activeChatData = sessionStorage.getItem("activeChat");
+
+  useEffect(() => {
+    if (activeChatData) {
+      dispatch(setActiveChat(JSON.parse(activeChatData)));
+    }
+  }, []);
 
   useEffect(() => {
     if (token && !user) {
@@ -76,42 +83,7 @@ function App() {
       dispatch(updateMessageStatus({ id, status: "delivered" }));
     });
   }, [socket, messages]);
-
-  useEffect(() => {
-    if (activeChat && messages?.length > 0) {
-      const hasUnseenMessages = messages?.some(
-        (msg) =>
-          msg?.senderId === activeChat?._id &&
-          msg?.receiverId === user?._id &&
-          msg?.status === "delivered"
-      );
-
-      if (hasUnseenMessages) {
-        emitEvent("messageSeen", {
-          senderId: activeChat?._id,
-          receiverId: user?._id,
-        });
-      }
-
-      onEvent("messageSeen", (id) => {
-        dispatch(updateMessageStatus({ id, status: "seen" }));
-      });
-
-      emitEvent("lastMessage", {
-        senderId: activeChat?._id,
-        receiverId: user?._id,
-      });
-
-      onEvent("lastMessage", (lastMessage) => {
-        if (lastMessage) {
-          dispatch(updateLastMessage(lastMessage));
-        }
-        if (activeChat?.chatId === lastMessage?.chatId) {
-          dispatch(setActiveChat({ ...activeChat, lastSeem: lastMessage }));
-        }
-      });
-    }
-  }, [activeChat, user, messages]);
+  
 
   useEffect(() => {
     if (contacts) {

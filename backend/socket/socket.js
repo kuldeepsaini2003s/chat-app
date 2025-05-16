@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { Message } from "../model/messageModel.js";
 import { Chat } from "../model/ChatModel.js";
 import { User } from "../model/UserModel.js";
+import { Media } from "../model/MediaModel.js";
 
 let io;
 let socket;
@@ -110,17 +111,25 @@ function initSocket(server) {
 
       const chat = await Chat.find({
         participants: { $all: [senderId, receiverId] },
-      }).populate({ path: "lastMessage", select: "message status createdAt" });
+      }).populate("lastMessage");
+      
+      const media = await Media.find({
+        messageId: chat[0].lastMessage._id,
+      });      
 
-      if (!chat || !chat[0].lastMessage) return;
-
-      const { message, status, createdAt } = chat[0].lastMessage;
+      const imageTypes = ["jpg", "png", "jpeg", "gif", "avif", "svg"];
 
       const formattedMessage = {
-        chatId: chat[0]._id,
-        message,
-        status,
-        time: createdAt,
+        message: chat[0]?.lastMessage?.message,
+        chatId: chat[0]?._id,
+        status: chat[0]?.lastMessage?.status,
+        time: chat[0]?.lastMessage?.createdAt,
+        type: media
+          ? imageTypes.includes(media?.type)
+            ? "image"
+            : "file"
+          : null,
+        fileName: (media && media?.name) || null,
       };
 
       io.to(senderSocket).emit("lastMessage", formattedMessage);
@@ -139,7 +148,7 @@ function initSocket(server) {
               lastSeen: new Date(),
             },
             { new: true }
-          );          
+          );
           delete userSocketMap[key];
           break;
         }

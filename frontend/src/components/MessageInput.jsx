@@ -5,7 +5,7 @@ import MediaPreview from "./MediaPreview";
 import { useDispatch, useSelector } from "react-redux";
 import { setMediaFiles, setMediaPreview } from "../redux/stateSlice";
 import axios from "axios";
-import { BACKEND_MESSAGE, LOCAL_MESSAGE } from "../utils/constant";
+import { BACKEND_MESSAGE } from "../utils/constant";
 
 const MessageInput = () => {
   const { activeChat, user } = useSelector((store) => store?.user);
@@ -34,7 +34,7 @@ const MessageInput = () => {
       setMessage("");
       inputRef?.current?.focus();
       try {
-        await axios.post(LOCAL_MESSAGE + "/send", newMessage);
+        await axios.post(BACKEND_MESSAGE + "/send", newMessage);
       } catch (error) {
         console.error("Error while sending message", error);
       }

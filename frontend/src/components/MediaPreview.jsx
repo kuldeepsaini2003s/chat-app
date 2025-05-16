@@ -7,7 +7,7 @@ import {
   setMediaPreview,
 } from "../redux/stateSlice";
 import EmojiSelector from "./EmojiSelector";
-import { LOCAL_MESSAGE } from "../utils/constant";
+import { BACKEND_MESSAGE } from "../utils/constant";
 import axios from "axios";
 
 const MediaPreview = ({ inputRef }) => {
@@ -52,29 +52,30 @@ const MediaPreview = ({ inputRef }) => {
 
   const handleSend = async () => {
     const payload = new FormData();
-
     mediaFiles?.forEach((file, index) => {
-      const fileData = {
-        ...file,
-        caption: index === 0 ? caption.trim() : "",
-      };
-      payload.append("media", fileData);
+      payload.append("media", file.file);
+      if (index === 0) {
+        payload.append("message", caption ? caption.trim() : "");
+      }
     });
-
     payload.append("time", new Date());
     payload.append("senderId", user?._id);
     payload.append("receiverId", activeChat._id);
-
-    try {
-      await axios.post(LOCAL_MESSAGE + "/send", payload);
-    } catch (error) {
-      console.error("Error while sending message", error);
-    }
 
     inputRef.current.focus();
     dispatch(setMediaPreview(false));
     dispatch(setMediaFiles([]));
     setCaption("");
+
+    try {
+      await axios.post(BACKEND_MESSAGE + "/mediaUpload", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      console.error("Error while sending message", error);
+    }
   };
 
   const handleAddFile = () => {

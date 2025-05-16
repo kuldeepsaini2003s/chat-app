@@ -1,4 +1,4 @@
-import { Check, CheckCheck } from "lucide-react";
+import { Check, CheckCheck, File, Image } from "lucide-react";
 import { formatTime } from "../utils/constant";
 
 const ChatItem = ({ chat, isActive, onClick }) => {
@@ -33,8 +33,20 @@ const ChatItem = ({ chat, isActive, onClick }) => {
                 )}
               </>
             </span>
-            <span className="text-gray-500 line-clamp-1">
-              {chat?.lastMessage}
+            <span className="flex items-center gap-1 text-gray-500 line-clamp-1">
+              {chat?.type === "image" ? (
+                <>
+                  {" "}
+                  <Image size={14} /> Image
+                </>
+              ) : chat?.type === "file" ? (
+                <>
+                  <File className="flex-shrink-0" size={14} />{" "}
+                  <span className="line-clamp-1">{chat?.fileName}</span>
+                </>
+              ) : (
+                <span className="line-clamp-1">{chat?.lastMessage}</span>
+              )}
             </span>
           </p>
           <p className="text-xs flex-shrink-0 text-gray-500 font-medium">

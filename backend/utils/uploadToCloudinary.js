@@ -10,11 +10,21 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET,
 });
 
-const uploadOnCloudinary = async (localFilePath) => {
+const uploadOnCloudinary = async (localFilePath, mimetype) => {
+  let resourceType = "auto";
+
+  if (
+    mimetype === "application/pdf" ||
+    mimetype ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ) {
+    resourceType = "raw";
+  }
+
   try {
     const uploadstream = await cloudinary.uploader.upload(localFilePath, {
       public_id: `Chat_App_${new Date().toISOString().replace(/[:.]/g, "-")}`,
-      resource_type: "auto",
+      resource_type: resourceType,
       folder: "chat_app",
     });
     fs.unlinkSync(localFilePath);

@@ -31,7 +31,7 @@ const ChatContainer = () => {
       }
     };
 
-    if (activeChat && !messages?.length > 0) {
+    if (activeChat && messages.length === 0) {
       fetchData();
     }
   }, [activeChat]);

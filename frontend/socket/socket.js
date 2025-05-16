@@ -10,10 +10,6 @@ export const connectSocket = (userId) => {
   });
 
   socket.on("connect", () => {});
-
-  //   socket.on("disconnect", () => {
-  //     console.log("socket disconnected");
-  //   });
 };
 
 export const getSocket = () => socket;

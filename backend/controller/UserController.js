@@ -4,6 +4,7 @@ import { uploadOnCloudinary } from "../utils/uploadToCloudinary.js";
 import { generateToken } from "../utils/generateToken.js";
 import fs from "fs";
 import { Chat } from "../model/ChatModel.js";
+import { Media } from "../model/MediaModel.js";
 
 const option = {
   httpOnly: true,
@@ -184,6 +185,8 @@ export const contacts = async (req, res) => {
       });
     }
 
+    const imageTypes = ["jpg", "png", "jpeg", "gif", "avif", "svg"];
+
     const chats = await Chat.find({
       participants: { $all: [user._id], $elemMatch: { $in: user.contacts } },
     })
@@ -192,38 +195,73 @@ export const contacts = async (req, res) => {
         select: "name _id avatar isGroup lastMessage",
         match: { _id: { $ne: user._id } },
       })
-      .populate({ path: "lastMessage", select: "message status createdAt" });
+      .populate("lastMessage");
 
     const chatMap = new Map();
+    const messageIds = [];
 
     const currentUserId = user._id.toString();
-    
+
     chats.forEach((chat) => {
-      if (!chat.isGroup) {
-        const otherParticipants = chat.participants.find(
-          (participants) => participants?._id.toString() !== currentUserId
+      if (!chat.isGroup && chat.lastMessage) {
+        const otherParticipant = chat.participants.find(
+          (p) => p?._id.toString() !== currentUserId
         );
 
-        if (otherParticipants) {
-          chatMap.set(otherParticipants._id.toString(), {
+        if (otherParticipant) {
+          chatMap.set(otherParticipant._id.toString(), {
             lastMessage: chat.lastMessage,
             chatId: chat._id,
           });
+          messageIds.push(chat.lastMessage._id);
         }
       }
     });
 
-    const chatsWithLastMessages = user.contacts.map((contact) => ({
-      ...contact.toObject(),
-      lastMessage:
-        chatMap.get(contact._id.toString())?.lastMessage.message || null,
-      status: chatMap.get(contact._id.toString())?.lastMessage.status || null,
-      time: chatMap.get(contact._id.toString())?.lastMessage.createdAt || null,
-      chatId: chatMap.get(contact._id.toString())?.chatId || null,
-    }));
+    // Fetch all media related to lastMessages
+    const mediaDocs = await Media.aggregate([
+      { $match: { messageId: { $in: messageIds } } },
+      {
+        $group: {
+          _id: "$messageId",
+          lastMedia: { $last: "$$ROOT" }, // get last media doc per message
+        },
+      },
+    ]);
+
+    const mediaMap = new Map();
+    mediaDocs.forEach((media) => {
+      mediaMap.set(media._id.toString(), {
+        type: media.lastMedia.type,
+        name: media.lastMedia.name,
+      });
+    });
+
+    const chatsWithLastMessages = user.contacts.map((contact) => {
+      const chatData = chatMap.get(contact._id.toString());
+      const lastMessage = chatData?.lastMessage;
+
+      const mediaInfo = lastMessage
+        ? mediaMap.get(lastMessage._id.toString())
+        : null;
+
+      return {
+        ...contact.toObject(),
+        lastMessage: lastMessage?.message || null,
+        status: lastMessage?.status || null,
+        time: lastMessage?.createdAt || null,
+        chatId: chatData?.chatId || null,
+        type: mediaInfo
+          ? imageTypes.includes(mediaInfo?.type)
+            ? "image"
+            : "file"
+          : null,
+        fileName: (mediaInfo && mediaInfo?.name) || null,
+      };
+    });
 
     return res.status(200).json({
-      success: false,
+      success: true,
       msg: "Users list fetched successfully",
       data: chatsWithLastMessages,
     });

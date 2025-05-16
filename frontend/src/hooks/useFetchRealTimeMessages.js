@@ -10,7 +10,7 @@ const useFetchRealTimeMessages = () => {
   const socket = getSocket();
 
   useEffect(() => {
-    onEvent("newMessage", (newMessage) => {
+    onEvent("newMessage", (newMessage) => {      
       if (activeChat?.chatId === newMessage?.chatId) {
         dispatch(setMessages([...messages, newMessage]));
       }
