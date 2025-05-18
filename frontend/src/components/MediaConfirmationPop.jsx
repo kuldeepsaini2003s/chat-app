@@ -9,6 +9,7 @@ const MediaConfirmationPop = () => {
   const dispatch = useDispatch();
   const handleDiscard = () => {
     dispatch(setMediaPreview(false));
+    dispatch(setConfirmationPop(false));
     dispatch(setMediaFiles([]));
   };
   const handleReturn = () => {

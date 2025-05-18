@@ -6,8 +6,10 @@ import { BACKEND_USER } from "../utils/constant";
 import { setUser } from "../redux/userSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
+import useResponseHandler from "../hooks/useResponseHandler";
 
 const Login = () => {
+  const { handleResponse, handleError } = useResponseHandler();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -16,24 +18,33 @@ const Login = () => {
       const email = formData?.get("email") || previousState?.email || "";
       const password =
         formData?.get("password") || previousState?.password || "";
-      if (!email) {
-      }
+
+      const toastId = toast.loading("Please wait...");
+
       try {
-        const { data } = await axios.post(BACKEND_USER + "/login", {
+        const { status, data } = await axios.post(BACKEND_USER + "/login", {
           email,
           password,
         });
-
-        if (data?.success) {
-          localStorage.setItem("accessToken", data?.accessToken);
-          localStorage.setItem("refreshToken", data?.refreshToken);
-          dispatch(setUser(data?.data));
-          toast.success(data?.msg);
-          navigate("/");
-        }
+        handleResponse({
+          status: status,
+          message: data?.msg,
+          toastId,
+          showToast: true,
+          onSuccess: () => {
+            localStorage.setItem("accessToken", data?.accessToken);
+            localStorage.setItem("refreshToken", data?.refreshToken);
+            dispatch(setUser(data?.data));
+            navigate("/");
+          },
+        });
       } catch (error) {
-        console.error("Error while login", error);
-        toast.error(error?.response?.data?.msg);
+        handleError({
+          error,
+          toastId,
+          message: error?.response?.data?.msg || "Failed to login.",
+          showToast: true,
+        });
         return { email, password };
       }
     },

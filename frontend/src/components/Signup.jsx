@@ -6,8 +6,10 @@ import { BACKEND_USER } from "../utils/constant";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/userSlice";
 import { toast } from "react-toastify";
+import useResponseHandler from "../hooks/useResponseHandler";
 
 const Signup = () => {
+  const { handleResponse, handleError } = useResponseHandler();
   const [preview, setPreview] = useState("/Photo.png");
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
@@ -34,22 +36,37 @@ const Signup = () => {
       payload.append("password", password);
       payload.append("avatar", file);
 
+      const toastId = toast.loading("Creating account...");
+
       try {
-        const { data } = await axios.post(BACKEND_USER + "/register", payload, {
-          headers: {
-            "Content-Type": "multipart/form-data",
+        const { status, data } = await axios.post(
+          BACKEND_USER + "/register",
+          payload,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        handleResponse({
+          status: status,
+          message: data.msg,
+          toastId,
+          showToast: true,
+          onSuccess: () => {
+            localStorage.setItem("accessToken", data?.accessToken);
+            localStorage.setItem("refreshToken", data?.refreshToken);
+            dispatch(setUser(data?.data));
+            navigate("/");
           },
         });
-        if (data?.success) {
-          localStorage.setItem("accessToken", data?.accessToken);
-          localStorage.setItem("refreshToken", data?.refreshToken);
-          dispatch(setUser(data?.data));
-          toast.success(data?.msg);
-          navigate("/");
-        }
       } catch (error) {
-        console.error("Error while register", error);
-        toast.error(error?.response?.data?.msg);
+        handleError({
+          error,
+          toastId,
+          showToast: true,
+          message: error?.response?.data?.msg || "Failed to create user.",
+        });
         return { name, email, password };
       }
     },

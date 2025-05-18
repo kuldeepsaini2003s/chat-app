@@ -1,15 +1,13 @@
 import { ArrowLeft, Phone, Search, Video } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getLastSeen } from "../utils/constant";
 import { useEffect, useState } from "react";
-import { setActiveChat } from "../redux/userSlice";
 
 const ChatHeader = () => {
   const { activeChat, onlineUsers, contacts } = useSelector(
     (store) => store?.user
   );
   const [lastSeem, setLastSeen] = useState("");
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const isOnline = onlineUsers?.includes(activeChat?._id)

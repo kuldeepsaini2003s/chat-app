@@ -6,12 +6,13 @@ import React, { useEffect, useRef } from "react";
 const Message = ({ text, time, isSent, reaction, media, status }) => {
   const ImageTypes = ["jpg", "png", "jpeg", "gif", "avif", "svg"];
   const { messages } = useSelector((store) => store?.message);
+  const messageClass = isSent ? "sent" : "received";
 
   const handleOpenPDF = (url) => {
     window.open(url);
   };
 
-  const handleDocOpen = (docUrl, type) => {
+  const handleDocOpen = (docUrl) => {
     const url = `https://docs.google.com/viewer?url=${encodeURIComponent(
       docUrl
     )}&embedded=true`;
@@ -44,9 +45,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
             {media?.type === "pdf" ? (
               <div
                 ref={scrollRef}
-                className={`message-bubble min-w-[20rem] flex flex-col rounded-md max-w-[20rem] rounded-xl bg-[#dcf8c6] p-3 shadow-md ${
-                  isSent ? "sent" : "received"
-                }`}
+                className={`message-bubble min-w-[20rem] flex flex-col rounded-md max-w-[20rem] rounded-xl bg-[#dcf8c6] p-3 shadow-md ${messageClass}`}
               >
                 <div className="flex items-center gap-4">
                   <img src="/PDF.svg" alt="pdf" className="w-10 h-10" />
@@ -99,9 +98,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
             ) : ImageTypes.includes(media?.type) ? (
               <div
                 ref={scrollRef}
-                className={`text-sm message-bubble rounded-md max-w-[20rem] flex flex-col px-2 py-2 relative ${
-                  isSent ? "sent" : "received"
-                }`}
+                className={`text-sm message-bubble rounded-md max-w-[20rem] flex flex-col px-2 py-2 relative ${messageClass}`}
               >
                 <button
                   onClick={() => handleDownload(media?.url, media?.name)}
@@ -133,12 +130,10 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
             ) : (
               <div
                 ref={scrollRef}
-                className={`message-bubble min-w-[20rem] flex flex-col rounded-md max-w-[20rem] rounded-xl bg-[#dcf8c6] p-3 shadow-sm ${
-                  isSent ? "sent" : "received"
-                }`}
+                className={`message-bubble min-w-[20rem] flex flex-col rounded-md max-w-[20rem] rounded-xl bg-[#dcf8c6] p-3 shadow-sm ${messageClass}`}
               >
                 <div className="flex items-center gap-4">
-                  <img src="/microsoftWord.svg" alt="doc" className="w-8 h-8" />
+                  <img src="/word-1.svg" alt="doc" className="w-8 h-8" />
                   <div className="flex flex-col">
                     <p className="text-xs font-medium line-clamp-2 text-gray-900">
                       {media?.name}
@@ -193,9 +188,7 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
       ) : (
         <div
           ref={scrollRef}
-          className={`message-bubble ${
-            isSent ? "sent" : "received"
-          } px-2 py-2 rounded-lg max-w-[80%] flex flex-col relative bg-green-100`}
+          className={`message-bubble ${messageClass} px-2 py-2 rounded-lg max-w-[80%] flex flex-col relative bg-green-100`}
         >
           <div className="flex items-end">
             <span className="text-sm break-words">{text}</span>

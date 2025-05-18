@@ -6,8 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { setMediaFiles, setMediaPreview } from "../redux/stateSlice";
 import axios from "axios";
 import { BACKEND_MESSAGE } from "../utils/constant";
+import useResponseHandler from "../hooks/useResponseHandler";
 
 const MessageInput = () => {
+  const { handleError } = useResponseHandler();
   const { activeChat, user } = useSelector((store) => store?.user);
   const [message, setMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -36,7 +38,10 @@ const MessageInput = () => {
       try {
         await axios.post(BACKEND_MESSAGE + "/send", newMessage);
       } catch (error) {
-        console.error("Error while sending message", error);
+        handleError({
+          error,
+          message: error?.response?.data?.msg,
+        });
       }
     }
   };

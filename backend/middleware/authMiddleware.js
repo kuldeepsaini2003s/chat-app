@@ -5,7 +5,7 @@ const verifyToken = async (req, res, next) => {
   try {
     const token =
       req?.cookies?.accessToken || req.header("authorization")?.split(" ")[1];
-      
+
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -14,6 +14,13 @@ const verifyToken = async (req, res, next) => {
     }
 
     const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decoded) {
+      return res.status(401).json({
+        success: false,
+        msg: "Access token expired",
+      });
+    }
 
     const user = await User.findById(decoded.id).select(
       "-password -refreshToken"
@@ -30,7 +37,7 @@ const verifyToken = async (req, res, next) => {
     next();
   } catch (error) {
     console.log("Error while verifying access token", error);
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
       msg: "Something went wrong",
     });

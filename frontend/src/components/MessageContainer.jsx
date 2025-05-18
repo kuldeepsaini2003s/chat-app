@@ -3,7 +3,7 @@ import Message from "./Message";
 import VoiceMessage from "./VoiceMessage";
 import { useEffect } from "react";
 import { updateMessageStatus } from "../redux/messageSlice";
-import { emitEvent, getSocket, onEvent } from "../../socket/socket";
+import { emitEvent, onEvent } from "../../socket/socket";
 import useFetchRealTimeMessages from "../hooks/useFetchRealTimeMessages";
 import { updateLastMessage } from "../redux/userSlice";
 
@@ -12,7 +12,6 @@ const MessagesContainer = () => {
   const { messages } = useSelector((store) => store?.message);
   const { user, activeChat } = useSelector((store) => store?.user);
   const dispatch = useDispatch();
-  const socket = getSocket();
 
   useEffect(() => {
     if (activeChat && messages?.length > 0) {

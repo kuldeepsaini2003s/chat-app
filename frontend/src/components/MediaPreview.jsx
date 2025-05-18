@@ -9,8 +9,10 @@ import {
 import EmojiSelector from "./EmojiSelector";
 import { BACKEND_MESSAGE } from "../utils/constant";
 import axios from "axios";
+import useResponseHandler from "../hooks/useResponseHandler";
 
 const MediaPreview = ({ inputRef }) => {
+  const { handleError } = useResponseHandler();
   const [caption, setCaption] = useState("");
   const [mediaSelected, setMediaSelected] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -74,7 +76,10 @@ const MediaPreview = ({ inputRef }) => {
         },
       });
     } catch (error) {
-      console.error("Error while sending message", error);
+      handleError({
+        error,
+        message: error?.response?.data?.msg,
+      });
     }
   };
 

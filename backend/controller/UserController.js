@@ -5,6 +5,7 @@ import { generateToken } from "../utils/generateToken.js";
 import fs from "fs";
 import { Chat } from "../model/ChatModel.js";
 import { Media } from "../model/MediaModel.js";
+import jwt from "jsonwebtoken";
 
 const option = {
   httpOnly: true,
@@ -335,6 +336,58 @@ export const user = async (req, res) => {
     });
   } catch (error) {
     console.log("Error while getting user details", error);
+    return res.status(500).json({
+      success: false,
+      msg: "Something went wrong",
+    });
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  try {
+    const token =
+      req?.cookies?.refreshToken || req?.header("authorization")?.split(" ")[1];
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        msg: "Unauthorized required",
+      });
+    }
+
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    if (token !== user.refreshToken) {
+      return res
+        .status(400)
+        .json({ success: false, message: "refresh token is not valid" });
+    }
+
+    const { refreshToken, accessToken } = generateAccessAndRefreshToken(user);
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    return res
+      .status(200)
+      .cookie("refreshToken", refreshToken, option)
+      .cookie("accessToken", accessToken, option)
+      .json({
+        success: true,
+        refreshToken,
+        accessToken,
+        msg: "Token Updated successfully",
+      });
+  } catch (error) {
+    console.log("Error while refreshing token", error);
     return res.status(500).json({
       success: false,
       msg: "Something went wrong",

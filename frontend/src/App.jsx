@@ -9,25 +9,21 @@ import Signup from "./components/Signup";
 import Login from "./components/Login";
 import LoginBlocker from "./hooks/LoginBlocker";
 import ProtectiveRoute from "./hooks/ProtectiveRoute";
-import { act, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { BACKEND_USER } from "./utils/constant";
 import axios from "axios";
-import {
-  setActiveChat,
-  setOnlineUsers,
-  setUser,
-  updateLastMessage,
-} from "./redux/userSlice";
+import { setActiveChat, setOnlineUsers, setUser } from "./redux/userSlice";
 import {
   connectSocket,
   disconnectSocket,
-  emitEvent,
   getSocket,
   onEvent,
 } from "../socket/socket";
 import { updateMessageStatus } from "./redux/messageSlice";
+import useResponseHandler from "./hooks/useResponseHandler";
 
 function App() {
+  const { handleError } = useResponseHandler();
   const { activeChat, user, contacts } = useSelector((store) => store?.user);
   const { messages } = useSelector((store) => store?.message);
   const token = localStorage.getItem("accessToken");
@@ -44,13 +40,21 @@ function App() {
   useEffect(() => {
     if (token && !user) {
       const fetchUser = async () => {
-        const { data } = await axios.get(BACKEND_USER + "/", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (data?.success) {
-          dispatch(setUser(data?.data));
+        try {
+          const { data } = await axios.get(BACKEND_USER + "/", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (data?.success) {
+            dispatch(setUser(data?.data));
+          }
+        } catch (error) {
+          handleError({
+            error,
+            message: error?.response?.data?.msg,
+          });
         }
       };
 
@@ -83,7 +87,6 @@ function App() {
       dispatch(updateMessageStatus({ id, status: "delivered" }));
     });
   }, [socket, messages]);
-  
 
   useEffect(() => {
     if (contacts) {

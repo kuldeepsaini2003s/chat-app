@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import useResponseHandler from "./useResponseHandler";
 
 export const useFetch = (url, option = {}) => {
+  const { handleError } = useResponseHandler();
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -12,7 +14,10 @@ export const useFetch = (url, option = {}) => {
           setData(data?.data);
         }
       } catch (error) {
-        console.error("Error while fetching data", error);
+        handleError({
+          error,
+          message: error?.response?.data?.msg,
+        });
       }
     };
     fetchData();

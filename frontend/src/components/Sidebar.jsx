@@ -8,8 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { setActiveChat, setContacts, setUser } from "../redux/userSlice";
 import { toast } from "react-toastify";
 import { setMessages } from "../redux/messageSlice";
+import useResponseHandler from "../hooks/useResponseHandler";
 
 const Sidebar = () => {
+  const { handleResponse, handleError } = useResponseHandler();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const { user, activeChat, contacts } = useSelector((store) => store?.user);
@@ -42,7 +44,10 @@ const Sidebar = () => {
             setSearchResult(data?.data);
           }
         } catch (error) {
-          console.error("Error while searching user", error);
+          handleError({
+            error,
+            message: error?.response?.data?.msg,
+          });
           setSearchResult([]);
         }
       };
@@ -56,25 +61,35 @@ const Sidebar = () => {
   const dispatch = useDispatch();
 
   const handleLogout = async () => {
+    const toastId = toast.loading("logging out...");
     try {
-      const { data } = await axios.get(BACKEND_USER + "/logout", {
+      const { status, data } = await axios.get(BACKEND_USER + "/logout", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      if (data?.success) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        dispatch(setUser(null));
-        dispatch(setMessages(null));
-        dispatch(setContacts(null));
-        dispatch(setActiveChat(null));
-        toast.success(data?.msg);
-        navigate("/login");
-      }
+      handleResponse({
+        status: status,
+        message: data.msg,
+        toastId,
+        showToast: true,
+        onSuccess: () => {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          dispatch(setUser(null));
+          dispatch(setMessages(null));
+          dispatch(setContacts(null));
+          dispatch(setActiveChat(null));
+          navigate("/login");
+        },
+      });
     } catch (error) {
-      console.error("Error while logging out", error);
-      toast.error(error?.response?.data?.msg);
+      handleError({
+        error,
+        toastId,
+        showToast: true,
+        message: error?.response?.data?.msg || "Failed to logout.",
+      });
     }
   };
 
@@ -110,12 +125,15 @@ const Sidebar = () => {
             <EllipsisVertical size={18} />
             {popUp && (
               <div className="w-fit z-50 flex flex-col bg-white rounded-md shadow-2xl absolute right-0 -bottom-20">
-                <button className="px-5 py-2 cursor-pointer hover:bg-[#d0fdc8]">
+                <button className="px-5 rounded-t-md py-2 text-start cursor-pointer hover:bg-[#d0fdc8]">
                   Profile
+                </button>
+                <button className="px-5 py-2 text-start cursor-pointer hover:bg-[#d0fdc8]">
+                  Dark Theme
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="px-5 py-2 cursor-pointer hover:bg-[#d0fdc8]"
+                  className="px-5 py-2 cursor-pointer text-start rounded-b-md hover:bg-[#d0fdc8]"
                 >
                   Logout
                 </button>

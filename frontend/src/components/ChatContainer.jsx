@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import MediaConfirmationPop from "./MediaConfirmationPop";
 import ChatHeader from "./ChatHeader";
@@ -7,8 +7,10 @@ import MessageContainer from "./MessageContainer";
 import { setMessages } from "../redux/messageSlice";
 import { BACKEND_MESSAGE } from "../utils/constant";
 import axios from "axios";
+import useResponseHandler from "../hooks/useResponseHandler";
 
 const ChatContainer = () => {
+  const { handleError } = useResponseHandler();
   const { confirmationPop } = useSelector((store) => store?.state);
   const { activeChat, user } = useSelector((store) => store?.user);
   const { messages } = useSelector((store) => store?.message);
@@ -26,7 +28,10 @@ const ChatContainer = () => {
           dispatch(setMessages(data?.data));
         }
       } catch (error) {
-        console.error("Error while fetching data", error);
+        handleError({
+          error,
+          message: error?.response?.data?.msg,
+        });
         dispatch(setMessages([]));
       }
     };
