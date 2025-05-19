@@ -6,6 +6,7 @@ import fs from "fs";
 import { Chat } from "../model/ChatModel.js";
 import { Media } from "../model/MediaModel.js";
 import jwt from "jsonwebtoken";
+import { sendMail } from "../utils/sendMail.js";
 
 const option = {
   httpOnly: true,
@@ -17,6 +18,17 @@ const generateAccessAndRefreshToken = (user) => {
   const accessToken = generateToken(user._id, "10d");
   const refreshToken = generateToken(user._id, "30d");
   return { refreshToken, accessToken };
+};
+
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000);
+};
+
+const createActivationToken = (otp, user) => {
+  const payload = { otp: otp, user: user };
+  const secret = process.env.JWT_SECRET;
+  const option = { expiresIn: "10m" };
+  return jwt.sign(payload, secret, option);
 };
 
 export const register = async (req, res) => {
@@ -374,7 +386,7 @@ export const refreshToken = async (req, res) => {
     const { refreshToken, accessToken } = generateAccessAndRefreshToken(user);
 
     user.refreshToken = refreshToken;
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     return res
       .status(200)
@@ -388,6 +400,122 @@ export const refreshToken = async (req, res) => {
       });
   } catch (error) {
     console.log("Error while refreshing token", error);
+    return res.status(500).json({
+      success: false,
+      msg: "Something went wrong",
+    });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        msg: "Email is required",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
+
+    const otp = generateOTP();
+    const resetPasswordToken = createActivationToken(otp, user);
+
+    await sendMail({
+      email: user.email,
+      subject: "Password Reset Request",
+      message: `Hi ${user.name},\n\nYour OTP to reset your password is: ${otp}.\n\nIf you didn't request this, please ignore this email.`,
+    });
+
+    return res.status(200).json({
+      success: true,
+      msg: `An OTP has been sent to ${user.email}`,
+      resetToken: resetPasswordToken,
+    });
+  } catch (error) {
+    console.log("Error in forgot password", error);
+    return res.status(500).json({
+      success: false,
+      msg: "Something went wrong",
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { activation_otp, password } = req.body;
+    const authHeader = req.headers["authorization"];
+    const verificationToken = authHeader && authHeader.split(" ")[1];    
+    
+    const tokenVerification = await jwt.verify(
+      verificationToken,
+      process.env.JWT_SECRET
+    );
+
+    if (!tokenVerification) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid Token",
+      });
+    }
+
+    const otp = tokenVerification.otp;
+
+    if (!otp === activation_otp) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid OTP",
+      });
+    }
+
+    const { user: userData } = tokenVerification;
+
+    const { email } = userData;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        msg: "User not found",
+      });
+    }    
+    
+    const samePassword = await bcrypt.compare(password, user.password);
+
+    if (samePassword) {
+      return res.status(400).json({
+        success: false,
+        msg: "New password cannot be the same as the old password.",
+      });
+    }
+
+    const newPassword = await bcrypt.hash(password, 10);
+
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
+
+    await sendMail({
+      email: user.email,
+      subject: "Password Updated",
+      message: `Hello ${user.name} your password was successfully updated.`,
+    });
+
+    return res.status(200).json({
+      success: true,
+      msg: "Password updated successfully",
+    });
+  } catch (error) {
+    console.log("Error while resetting password", error);
     return res.status(500).json({
       success: false,
       msg: "Something went wrong",

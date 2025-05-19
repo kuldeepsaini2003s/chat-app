@@ -4,6 +4,11 @@
   --default-font-family: "Mulish", "Poppins", sans-serif;
 }
 
+@theme {
+  ---breakpoint-*: initial;
+  --breakpoint-ml: 426px;
+}
+
 /* Custom CSS for complex elements */
 .message-bubble {
   width: fit-content;

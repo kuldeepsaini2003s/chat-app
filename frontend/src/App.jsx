@@ -21,6 +21,9 @@ import {
 } from "../socket/socket";
 import { updateMessageStatus } from "./redux/messageSlice";
 import useResponseHandler from "./hooks/useResponseHandler";
+import ForgotPassword from "./components/ForgotPassword";
+import { setImagePreview, setImageUrl } from "./redux/stateSlice";
+import { ArrowLeft, Download } from "lucide-react";
 
 function App() {
   const { handleError } = useResponseHandler();
@@ -30,11 +33,31 @@ function App() {
   const activeChatRef = useRef(activeChat);
   const dispatch = useDispatch();
   const activeChatData = sessionStorage.getItem("activeChat");
+  const { imageUrl, imagePreview } = useSelector((store) => store?.state);
+  const imagePreviewRef = useRef(null);
 
   useEffect(() => {
     if (activeChatData) {
       dispatch(setActiveChat(JSON.parse(activeChatData)));
     }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (e.target.closest(".button-container")) return;
+
+      if (
+        imagePreviewRef?.current &&
+        !imagePreviewRef?.current.contains(e.target)
+      ) {
+        dispatch(setImagePreview(false));
+        dispatch(setImageUrl(null));
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
@@ -98,18 +121,6 @@ function App() {
     }
   }, [contacts]);
 
-  // Call this on page load and resize
-  function setRealViewportHeight() {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty("--vh", `${vh}px`);
-  }
-
-  useEffect(() => {
-    setRealViewportHeight();
-    window.addEventListener("resize", setRealViewportHeight);
-    return () => window.removeEventListener("resize", setRealViewportHeight);
-  }, []);
-
   useEffect(() => {
     activeChatRef.current = activeChat;
   }, [activeChat]);
@@ -119,10 +130,26 @@ function App() {
       if (activeChatRef.current) {
         dispatch(setActiveChat(null));
       }
+      if (imagePreview && imageUrl) {
+        dispatch(setImagePreview(false));
+        dispatch(setImageUrl(null));
+      }
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+
+  const handleDownload = (url, filename) => {
+    // insert fl_attachment into the Cloudinary URL to download file
+    const downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
+
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <BrowserRouter>
@@ -140,6 +167,38 @@ function App() {
                 >
                   {activeChat ? <ChatContainer /> : <WelcomeScreen />}
                 </div>
+                {imagePreview && (
+                  <div className="absolute p-2 max-ml:p-1 flex flex-col  gap-2 text-white inset-0 z-50 w-full h-ful bg-black/70 backdrop-blur-lg backdrop-saturate-150">
+                    <div className="button-container max-ml:text-sm flex items-center gap-3 w-full">
+                      <button
+                        onClick={() => {
+                          dispatch(setImagePreview(false));
+                          dispatch(setImageUrl(null));
+                        }}
+                        className="cursor-pointer p-1 rounded-full hover:bg-[#303030]"
+                      >
+                        <ArrowLeft className="w-10 max-ml:w-5" />
+                      </button>
+                      <h1 className="w-full">{imageUrl?.name}</h1>
+                      <button
+                        onClick={() => {
+                          handleDownload(imageUrl?.url, imageUrl?.name);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <Download className="w-10 max-ml:w-5" />
+                      </button>
+                    </div>
+                    <div className="w-full h-[90%] flex justify-center items-center rounded-md">
+                      <img
+                        src={imageUrl?.url}
+                        ref={imagePreviewRef}
+                        className="object-contain min-w-48 max-w-[90%] max-ml:max-w-full max-h-[100%] rounded-md"
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             }
           />
@@ -147,7 +206,7 @@ function App() {
         <Route element={<LoginBlocker />}>
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-          {/* <Route path="/forgot-password" element={<Login />} /> */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Route>
       </Routes>
     </BrowserRouter>

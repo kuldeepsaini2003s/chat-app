@@ -1,12 +1,14 @@
 import { Check, CheckCheck, Download } from "lucide-react";
 import { formatBytes, formatTime } from "../utils/constant";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useRef } from "react";
+import { setImagePreview, setImageUrl } from "../redux/stateSlice";
 
-const Message = ({ text, time, isSent, reaction, media, status }) => {
+const Message = ({ text, time, isSent, media, status }) => {
   const ImageTypes = ["jpg", "png", "jpeg", "gif", "avif", "svg"];
   const { messages } = useSelector((store) => store?.message);
   const messageClass = isSent ? "sent" : "received";
+  const dispatch = useDispatch();
 
   const handleOpenPDF = (url) => {
     window.open(url);
@@ -36,6 +38,11 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
   useEffect(() => {
     scrollRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const handleOpenImagePreview = (url) => {
+    dispatch(setImageUrl(url));
+    dispatch(setImagePreview(true));
+  };
 
   return (
     <>
@@ -88,24 +95,15 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                     </>
                   </span>
                 </div>
-
-                {reaction && (
-                  <div className="absolute -right-2 -bottom-2 bg-white rounded-xl px-1 py-0.5 shadow-sm text-xs">
-                    {reaction?.emoji} {reaction?.count}
-                  </div>
-                )}
               </div>
             ) : ImageTypes.includes(media?.type) ? (
               <div
                 ref={scrollRef}
-                className={`text-sm message-bubble rounded-md max-w-[20rem] flex flex-col px-2 py-2 relative ${messageClass}`}
+                onClick={() =>
+                  handleOpenImagePreview({ url: media?.url, name: media?.name })
+                }
+                className={`text-sm cursor-pointer message-bubble rounded-md max-w-[20rem] flex flex-col px-2 py-2 ${messageClass}`}
               >
-                <button
-                  onClick={() => handleDownload(media?.url, media?.name)}
-                  className="cursor-pointer shadow-xl bg-white rounded-md p-2 absolute  right-3 top-3"
-                >
-                  <Download size={17} />
-                </button>
                 <img
                   src={media?.url}
                   alt="image"
@@ -175,12 +173,6 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
                     </>
                   </span>
                 </div>
-
-                {reaction && (
-                  <div className="absolute -right-2 -bottom-2 bg-white rounded-xl px-1 py-0.5 shadow-sm text-xs">
-                    {reaction?.emoji} {reaction?.count}
-                  </div>
-                )}
               </div>
             )}
           </>
@@ -201,12 +193,6 @@ const Message = ({ text, time, isSent, reaction, media, status }) => {
               </>
             </span>
           </div>
-
-          {reaction && (
-            <div className="absolute -right-2 -bottom-2 bg-white rounded-xl px-1 py-0.5 shadow-sm text-xs">
-              {reaction.emoji} {reaction.count}
-            </div>
-          )}
         </div>
       )}
     </>

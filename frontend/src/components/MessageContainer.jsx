@@ -65,8 +65,7 @@ const MessagesContainer = () => {
               time={message?.time}
               isSent={user?._id === message?.senderId && true}
               media={message?.media}
-              status={message?.status}
-              reaction={message?.reaction}
+              status={message?.status}              
             />
           )
         )}
