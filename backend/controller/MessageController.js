@@ -159,7 +159,7 @@ export const mediaUpload = async (req, res) => {
 
     const mediaPromise = req?.files?.media.map(async (file) => {
       const { path, originalname, mimetype } = file;
-      const fileUrl = await uploadOnCloudinary(path, originalname, mimetype);
+      const fileUrl = await uploadOnCloudinary(path, mimetype);
       const type = extraFileExtension(fileUrl.secure_url);
       return {
         messageId: newMessage._id,

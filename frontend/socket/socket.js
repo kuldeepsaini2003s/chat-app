@@ -1,40 +1,47 @@
 import { io } from "socket.io-client";
+import { BACKEND_SOCKET } from "../src/utils/constant";
 
-let socket;
+let socketInstance = null;
 
 export const connectSocket = (userId) => {
-  socket = io("http://localhost:8000/", {
-    query: {
-      userId,
-    },
-  });
+  if (socketInstance) return;
+  
+  if (!socketInstance) {
+    socketInstance = io(BACKEND_SOCKET, {
+      query: {
+        userId,
+      },
+    });
+  }
 
-  socket.on("connect", () => {});
+  socketInstance.on("connect", () => {
+    // console.log("user connected");
+  });
 };
 
-export const getSocket = () => socket;
+export const getSocket = () => socketInstance;
 
 export const disconnectSocket = () => {
-  if (socket) {
-    socket.disconnect();
-    socket = null;
+  if (socketInstance) {
+    socketInstance.disconnect();
+    socketInstance = null;
   }
 };
 
 export const emitEvent = (event, cb) => {
-  if (socket) {
-    socket.emit(event, cb);
+  if (socketInstance) {
+    socketInstance.emit(event, cb);
   }
 };
 
 export const onEvent = (event, cb) => {
-  if (socket) {
-    socket.on(event, cb);
+  if (socketInstance) {
+    socketInstance.on(event, cb);
   }
 };
 
 export const offEvent = (event, cb) => {
-  if (socket) {
-    socket.off(event, cb);
+  if (socketInstance) {
+    socketInstance.off(event, cb);
   }
 };

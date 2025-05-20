@@ -13,12 +13,7 @@ import { useEffect, useRef } from "react";
 import { BACKEND_USER } from "./utils/constant";
 import axios from "axios";
 import { setActiveChat, setOnlineUsers, setUser } from "./redux/userSlice";
-import {
-  connectSocket,
-  disconnectSocket,
-  getSocket,
-  onEvent,
-} from "../socket/socket";
+import { connectSocket, disconnectSocket, onEvent } from "../socket/socket";
 import { updateMessageStatus } from "./redux/messageSlice";
 import useResponseHandler from "./hooks/useResponseHandler";
 import ForgotPassword from "./components/ForgotPassword";
@@ -87,29 +82,24 @@ function App() {
 
   useFetchContacts();
 
-  const socket = getSocket();
-
   useEffect(() => {
-    if (user) {
-      connectSocket(user?._id);
+    if (!user) return;
 
-      onEvent("getOnlineUser", (users) => {
-        dispatch(setOnlineUsers(users));
-      });
+    connectSocket(user?._id);
+    onEvent("getOnlineUser", (users) => {
+      dispatch(setOnlineUsers(users));
+    });
 
-      return () => disconnectSocket();
-    } else {
-      if (socket) {
-        disconnectSocket();
-      }
-    }
-  }, [user]);
+    return () => {
+      disconnectSocket();
+    };
+  }, [user?._id]);
 
   useEffect(() => {
     onEvent("messageDelivered", (id) => {
       dispatch(updateMessageStatus({ id, status: "delivered" }));
     });
-  }, [socket, messages]);
+  }, [messages]);
 
   useEffect(() => {
     if (contacts) {
@@ -126,13 +116,17 @@ function App() {
   }, [activeChat]);
 
   useEffect(() => {
-    const handlePopState = () => {
-      if (activeChatRef.current) {
-        dispatch(setActiveChat(null));
-      }
-      if (imagePreview && imageUrl) {
+    const handlePopState = (e) => {
+      const state = e.state || {};
+
+      if (!state.imagePreview) {
         dispatch(setImagePreview(false));
         dispatch(setImageUrl(null));
+      }
+
+      if (!state.chatOpen) {
+        dispatch(setActiveChat(null));
+        sessionStorage.removeItem("activeChat");
       }
     };
     window.addEventListener("popstate", handlePopState);
@@ -149,6 +143,16 @@ function App() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleImagePreviewBack = () => {
+    const currentState = { ...history.state };
+    if (currentState.imagePreview) {
+      delete currentState.imagePreview;
+      history.replaceState(currentState, "");
+    }
+    dispatch(setImagePreview(false));
+    dispatch(setImageUrl(null));
   };
 
   return (
@@ -171,10 +175,7 @@ function App() {
                   <div className="absolute p-2 max-ml:p-1 flex flex-col  gap-2 text-white inset-0 z-50 w-full h-ful bg-black/70 backdrop-blur-lg backdrop-saturate-150">
                     <div className="button-container max-ml:text-sm flex items-center gap-3 w-full">
                       <button
-                        onClick={() => {
-                          dispatch(setImagePreview(false));
-                          dispatch(setImageUrl(null));
-                        }}
+                        onClick={handleImagePreviewBack}
                         className="cursor-pointer p-1 rounded-full hover:bg-[#303030]"
                       >
                         <ArrowLeft className="w-10 max-ml:w-5" />

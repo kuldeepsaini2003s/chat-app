@@ -58,5 +58,6 @@ export function getLastSeen(timeStr) {
 const LOCAL_BACKEND = import.meta.env.VITE_BACKEND_URL_LOCAL;
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-export const BACKEND_USER = `${BACKEND_URL}/user`;
-export const BACKEND_MESSAGE = `${BACKEND_URL}/message`;
+export const BACKEND_USER = `${BACKEND_URL}/api/user`;
+export const BACKEND_MESSAGE = `${BACKEND_URL}/api/message`;
+export const BACKEND_SOCKET = `${BACKEND_URL}`;

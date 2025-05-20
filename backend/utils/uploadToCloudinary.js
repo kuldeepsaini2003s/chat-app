@@ -12,7 +12,6 @@ cloudinary.config({
 
 const uploadOnCloudinary = async (localFilePath, mimetype) => {
   let resourceType = "auto";
-
   if (
     mimetype === "application/pdf" ||
     mimetype ===

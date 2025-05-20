@@ -15,9 +15,7 @@ const Message = ({ text, time, isSent, media, status }) => {
   };
 
   const handleDocOpen = (docUrl) => {
-    const url = `https://docs.google.com/viewer?url=${encodeURIComponent(
-      docUrl
-    )}&embedded=true`;
+    const url = `https://docs.google.com/gview?url=${docUrl}&embedded=true`;
     window.open(url);
   };
 
@@ -40,6 +38,12 @@ const Message = ({ text, time, isSent, media, status }) => {
   }, [messages]);
 
   const handleOpenImagePreview = (url) => {
+    if (window.innerWidth < 748) {
+      const currentState = history.state;
+      if (!currentState.imagePreview) {
+        history.pushState({ ...currentState, imagePreview: true }, "");
+      }
+    }
     dispatch(setImageUrl(url));
     dispatch(setImagePreview(true));
   };

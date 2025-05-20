@@ -11,7 +11,7 @@ const ChatList = () => {
     dispatch(setActiveChat(chat));
     sessionStorage.setItem("activeChat", JSON.stringify(chat));
     if (window.innerWidth < 748) {
-      window.history.pushState({ chatOpen: true }, "");
+      history.pushState({ chatOpen: true }, "");
     }
   };
   return (

@@ -1,13 +1,15 @@
 import { ArrowLeft, Phone, Search, Video } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getLastSeen } from "../utils/constant";
 import { useEffect, useState } from "react";
+import { setActiveChat } from "../redux/userSlice";
 
 const ChatHeader = () => {
   const { activeChat, onlineUsers, contacts } = useSelector(
     (store) => store?.user
   );
   const [lastSeem, setLastSeen] = useState("");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const isOnline = onlineUsers?.includes(activeChat?._id)
@@ -16,10 +18,16 @@ const ChatHeader = () => {
     setLastSeen(isOnline);
   }, [onlineUsers, activeChat, contacts]);
 
+  const closeChat = () => {
+    history.replaceState({}, "");
+    dispatch(setActiveChat(null));
+    sessionStorage.removeItem("activeChat");
+  };
+
   return (
     <div className="p-3 bg-gray-100 flex justify-between items-center border-b border-gray-200">
       <div className="flex items-center gap-3">
-        <button onClick={() => window.history.back()}>
+        <button onClick={closeChat}>
           <ArrowLeft
             size={18}
             className="cursor-pointer text-gray-600 hover:text-gray-800"

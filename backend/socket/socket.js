@@ -31,6 +31,7 @@ function initSocket(server) {
     if (userId !== undefined) {
       userSocketMap[userId] = socket.id;
     }
+    // console.log("socket connect", socket.id);
 
     const receiverSocketId = userSocketMap[userId];
 
@@ -112,10 +113,10 @@ function initSocket(server) {
       const chat = await Chat.find({
         participants: { $all: [senderId, receiverId] },
       }).populate("lastMessage");
-      
+
       const media = await Media.find({
         messageId: chat[0].lastMessage._id,
-      });      
+      });
 
       const imageTypes = ["jpg", "png", "jpeg", "gif", "avif", "svg"];
 
@@ -139,10 +140,10 @@ function initSocket(server) {
     io.emit("getOnlineUser", Object.keys(userSocketMap));
 
     socket.on("disconnect", async () => {
-      // delete userSocketMap[userId];
+      // console.log("Socket disconnected", userSocketMap[userId]);
       for (const key in userSocketMap) {
         if (userSocketMap[key] === socket.id) {
-          const user = await User.findByIdAndUpdate(
+          await User.findByIdAndUpdate(
             key,
             {
               lastSeen: new Date(),

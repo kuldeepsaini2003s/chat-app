@@ -5,17 +5,6 @@ const userSlice = createSlice({
   initialState: {
     user: null,
     contacts: null,
-    // activeChat: {
-    //   _id: "6808f01220321d0731fa7d22",
-    //   name: "ajay",
-    //   avatar:
-    //     "https://res.cloudinary.com/dbmszmntv/image/upload/v1745416209/chat_app/Chat_App_2025-04-23T13-50-06-030Z.jpg",
-    //   lastSeen: "2025-05-08T03:57:21.801Z",
-    //   lastMessage: "kaise ho ",
-    //   status: "seen",
-    //   time: "2025-05-01T06:52:27.372Z",
-    //   chatId: "680a57799ae9813f7aca6b2b",
-    // },
     activeChat: null,
     onlineUsers: null,
   },

@@ -8,7 +8,7 @@ import useResponseHandler from "./useResponseHandler";
 const useFetchContacts = () => {
   const dispatch = useDispatch();
   const { handleError } = useResponseHandler();
-  const { user, onlineUsers } = useSelector((store) => store?.user);
+  const { user } = useSelector((store) => store?.user);
   const fetchContacts = async () => {
     try {
       const { data } = await axios.get(BACKEND_USER + "/contacts", {
@@ -30,7 +30,7 @@ const useFetchContacts = () => {
     if (user) {
       fetchContacts();
     }
-  }, [user, onlineUsers]);
+  }, [user]);
 };
 
 export default useFetchContacts;
