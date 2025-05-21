@@ -1,3 +1,10 @@
+const LOCAL_BACKEND = import.meta.env.VITE_BACKEND_URL_LOCAL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+export const BACKEND_USER = `${BACKEND_URL}/api/user`;
+export const BACKEND_MESSAGE = `${BACKEND_URL}/api/message`;
+export const BACKEND_SOCKET = `${BACKEND_URL}`;
+
 export function formatBytes(bytes) {
   if (bytes === 0) return "0 KB";
 
@@ -55,9 +62,13 @@ export function getLastSeen(timeStr) {
   }
 }
 
-const LOCAL_BACKEND = import.meta.env.VITE_BACKEND_URL_LOCAL;
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
-export const BACKEND_USER = `${BACKEND_URL}/api/user`;
-export const BACKEND_MESSAGE = `${BACKEND_URL}/api/message`;
-export const BACKEND_SOCKET = `${BACKEND_URL}`;
+export const handleDownload = (url, filename) => {
+  // insert fl_attachment into the Cloudinary URL to download file
+  const downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};

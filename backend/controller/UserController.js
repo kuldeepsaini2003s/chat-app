@@ -213,18 +213,23 @@ export const contacts = async (req, res) => {
     const chatMap = new Map();
     const messageIds = [];
 
-    const currentUserId = user._id.toString();
+    const currentUserId = user?._id?.toString();
 
     chats.forEach((chat) => {
       if (!chat.isGroup && chat.lastMessage) {
         const otherParticipant = chat.participants.find(
-          (p) => p?._id.toString() !== currentUserId
+          (p) => p?._id?.toString() !== currentUserId
+        );
+
+        const unseenEntry = chat.unSeenMessages?.find(
+          (entry) => entry?.user?.toString() === currentUserId
         );
 
         if (otherParticipant) {
-          chatMap.set(otherParticipant._id.toString(), {
+          chatMap.set(otherParticipant?._id?.toString(), {
             lastMessage: chat.lastMessage,
             chatId: chat._id,
+            unSeenCount: unseenEntry?.count || 0,
           });
           messageIds.push(chat.lastMessage._id);
         }
@@ -244,18 +249,18 @@ export const contacts = async (req, res) => {
 
     const mediaMap = new Map();
     mediaDocs.forEach((media) => {
-      mediaMap.set(media._id.toString(), {
-        type: media.lastMedia.type,
-        name: media.lastMedia.name,
+      mediaMap.set(media?._id?.toString(), {
+        type: media?.lastMedia?.type,
+        name: media?.lastMedia?.name,
       });
     });
 
     const chatsWithLastMessages = user.contacts.map((contact) => {
-      const chatData = chatMap.get(contact._id.toString());
+      const chatData = chatMap.get(contact?._id?.toString());
       const lastMessage = chatData?.lastMessage;
 
       const mediaInfo = lastMessage
-        ? mediaMap.get(lastMessage._id.toString())
+        ? mediaMap.get(lastMessage?._id?.toString())
         : null;
 
       return {
@@ -264,6 +269,7 @@ export const contacts = async (req, res) => {
         status: lastMessage?.status || null,
         time: lastMessage?.createdAt || null,
         chatId: chatData?.chatId || null,
+        unSeen: chatData?.unSeenCount,
         type: mediaInfo
           ? imageTypes.includes(mediaInfo?.type)
             ? "image"
@@ -454,8 +460,8 @@ export const resetPassword = async (req, res) => {
   try {
     const { activation_otp, password } = req.body;
     const authHeader = req.headers["authorization"];
-    const verificationToken = authHeader && authHeader.split(" ")[1];    
-    
+    const verificationToken = authHeader && authHeader.split(" ")[1];
+
     const tokenVerification = await jwt.verify(
       verificationToken,
       process.env.JWT_SECRET
@@ -488,8 +494,8 @@ export const resetPassword = async (req, res) => {
         success: false,
         msg: "User not found",
       });
-    }    
-    
+    }
+
     const samePassword = await bcrypt.compare(password, user.password);
 
     if (samePassword) {

@@ -13,10 +13,6 @@ export const getSocketId = (receiverId) => {
   return userSocketMap[receiverId];
 };
 
-export const getUserSocketId = () => {
-  return userSocketMap;
-};
-
 function initSocket(server) {
   io = new Server(server, {
     cors: {
@@ -30,8 +26,8 @@ function initSocket(server) {
 
     if (userId !== undefined) {
       userSocketMap[userId] = socket.id;
+      // console.log("socket connect", socket.id);
     }
-    // console.log("socket connect", socket.id);
 
     const receiverSocketId = userSocketMap[userId];
 
@@ -55,7 +51,7 @@ function initSocket(server) {
       });
     }
 
-    socket.on("messageDelivered", async (messageId) => {
+    socket.on("messageDelivered", async ({ messageId }) => {
       const updateStatus = await Message.findByIdAndUpdate(
         messageId,
         {
@@ -83,6 +79,21 @@ function initSocket(server) {
         });
 
         if (unSeenMessages.length > 0) {
+          await Chat.findOneAndUpdate(
+            {
+              participants: { $all: [senderId, receiverId] },
+            },
+            {
+              $set: {
+                "unSeenMessages.$[elem].count": 0,
+              },
+            },
+            {
+              arrayFilters: [{ "elem.user": receiverId }],
+              new: true,
+            }
+          );
+
           const messageIds = unSeenMessages.map((msg) => msg._id);
 
           await Message.updateMany(
@@ -91,7 +102,9 @@ function initSocket(server) {
           );
 
           const senderSocket = userSocketMap[senderId];
+
           const receiverSocket = userSocketMap[receiverId];
+
           unSeenMessages.forEach((msg) => {
             if (senderSocket) {
               io.to(senderSocket).emit("messageSeen", msg._id);
@@ -115,12 +128,12 @@ function initSocket(server) {
       }).populate("lastMessage");
 
       const media = await Media.find({
-        messageId: chat[0].lastMessage._id,
+        messageId: chat[0]?.lastMessage?._id,
       });
 
       const imageTypes = ["jpg", "png", "jpeg", "gif", "avif", "svg"];
 
-      const formattedMessage = {
+      const senderMessage = {
         message: chat[0]?.lastMessage?.message,
         chatId: chat[0]?._id,
         status: chat[0]?.lastMessage?.status,
@@ -133,8 +146,16 @@ function initSocket(server) {
         fileName: (media && media?.name) || null,
       };
 
-      io.to(senderSocket).emit("lastMessage", formattedMessage);
-      io.to(receiverSocket).emit("lastMessage", formattedMessage);
+      const receiverMessage = {
+        ...senderMessage,
+        unSeen:
+          chat[0]?.unSeenMessages?.find(
+            (entry) => entry?.user?.toString() === receiverId
+          )?.count || 0,
+      };
+
+      io.to(senderSocket).emit("lastMessage", senderMessage);
+      io.to(receiverSocket).emit("lastMessage", receiverMessage);
     });
 
     io.emit("getOnlineUser", Object.keys(userSocketMap));

@@ -4,11 +4,8 @@ import VoiceMessage from "./VoiceMessage";
 import { useEffect } from "react";
 import { updateMessageStatus } from "../redux/messageSlice";
 import { emitEvent, onEvent } from "../../socket/socket";
-import useFetchRealTimeMessages from "../hooks/useFetchRealTimeMessages";
-import { updateLastMessage } from "../redux/userSlice";
 
 const MessagesContainer = () => {
-  useFetchRealTimeMessages();
   const { messages } = useSelector((store) => store?.message);
   const { user, activeChat } = useSelector((store) => store?.user);
   const dispatch = useDispatch();
@@ -30,23 +27,14 @@ const MessagesContainer = () => {
       }
 
       onEvent("messageSeen", (id) => {
+        emitEvent("lastMessage", {
+          senderId: activeChat?._id,
+          receiverId: user?._id,
+        });
         dispatch(updateMessageStatus({ id, status: "seen" }));
       });
     }
   }, [activeChat, messages]);
-
-  useEffect(() => {
-    emitEvent("lastMessage", {
-      senderId: activeChat?._id,
-      receiverId: user?._id,
-    });
-
-    onEvent("lastMessage", (lastMessage) => {
-      if (lastMessage) {
-        dispatch(updateLastMessage(lastMessage));
-      }
-    });
-  }, [messages]);
 
   return (
     <div className="flex-1 p-2 chat-container-scrollbar">
@@ -65,7 +53,7 @@ const MessagesContainer = () => {
               time={message?.time}
               isSent={user?._id === message?.senderId && true}
               media={message?.media}
-              status={message?.status}              
+              status={message?.status}
             />
           )
         )}

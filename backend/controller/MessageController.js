@@ -41,6 +41,10 @@ export const sendMessage = async (req, res) => {
       chats = await Chat.create({
         participants: [senderId, receiverId],
         messages: [],
+        unSeenMessages: [
+          { user: senderId, count: 0 },
+          { user: receiverId, count: 0 },
+        ],
       });
     }
 
@@ -53,6 +57,16 @@ export const sendMessage = async (req, res) => {
     if (newMessage) {
       chats.messages.push(newMessage._id);
       chats.lastMessage = newMessage._id;
+
+      const unSeen = chats.unSeenMessages.find(
+        (entry) => entry?.user?.toString() === receiverId?.toString()
+      );
+
+      if (unSeen) {
+        unSeen.count += 1;
+      } else {
+        chats.unSeenMessages.push({ user: receiverId, count: 1 });
+      }
     }
 
     await chats.save();
@@ -70,26 +84,11 @@ export const sendMessage = async (req, res) => {
     }
 
     if (receiverSocketId) {
-      const message = await Message.findByIdAndUpdate(
-        newMessage._id,
-        {
-          status: "delivered",
-        },
-        {
-          new: true,
-        }
-      );
-      chats = await Chat.findOne({
-        participants: { $all: [senderId, receiverId] },
-      }).populate({ path: "lastMessage", select: "message status createdAt" });
-
       io.to(receiverSocketId).emit("newMessage", {
-        ...message.toObject(),
-        time: message.createdAt,
+        ...newMessage.toObject(),
+        time: newMessage.createdAt,
         chatId: chats._id,
       });
-
-      io.emit("messageDelivered", message?.id);
     }
 
     return res.status(200).json({
@@ -177,9 +176,23 @@ export const mediaUpload = async (req, res) => {
     chats.messages.push(newMessage._id);
     chats.lastMessage = newMessage._id;
 
+    const unSeen = chats.unSeenMessages.find(
+      (entry) => entry?.user?.toString() === receiverId?.toString()
+    );
+
+    if (unSeen) {
+      unSeen.count += mediaData?.length;
+    } else {
+      chats.unSeenMessages.push({
+        user: receiverId,
+        count: mediaData.length,
+      });
+    }
+
+    await chats.save();
+
     const receiverSocketId = getSocketId(receiverId);
     const senderSocketId = getSocketId(senderId);
-    chats.save();
 
     if (receiverSocketId) {
       const updateMessage = await Message.findByIdAndUpdate(

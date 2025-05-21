@@ -1,35 +1,27 @@
-import Sidebar from "./components/Sidebar";
 import "./App.css";
 import useFetchContacts from "./hooks/useFetchContacts";
-import ChatContainer from "./components/ChatContainer";
 import { useDispatch, useSelector } from "react-redux";
-import WelcomeScreen from "./components/WelcomeScreen";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import LoginBlocker from "./hooks/LoginBlocker";
 import ProtectiveRoute from "./hooks/ProtectiveRoute";
 import { useEffect, useRef } from "react";
-import { BACKEND_USER } from "./utils/constant";
-import axios from "axios";
-import { setActiveChat, setOnlineUsers, setUser } from "./redux/userSlice";
+import { setActiveChat, setOnlineUsers } from "./redux/userSlice";
 import { connectSocket, disconnectSocket, onEvent } from "../socket/socket";
-import { updateMessageStatus } from "./redux/messageSlice";
-import useResponseHandler from "./hooks/useResponseHandler";
 import ForgotPassword from "./components/ForgotPassword";
-import { setImagePreview, setImageUrl } from "./redux/stateSlice";
-import { ArrowLeft, Download } from "lucide-react";
+import useHandleMessages from "./hooks/useHandleMessages";
+import useFetchUser from "./hooks/useFetchUser";
+import Body from "./components/Body";
 
 function App() {
-  const { handleError } = useResponseHandler();
+  useFetchUser();
+  useFetchContacts();
+  useHandleMessages();
   const { activeChat, user, contacts } = useSelector((store) => store?.user);
-  const { messages } = useSelector((store) => store?.message);
-  const token = localStorage.getItem("accessToken");
+  const activeChatData = sessionStorage.getItem("activeChat");
   const activeChatRef = useRef(activeChat);
   const dispatch = useDispatch();
-  const activeChatData = sessionStorage.getItem("activeChat");
-  const { imageUrl, imagePreview } = useSelector((store) => store?.state);
-  const imagePreviewRef = useRef(null);
 
   useEffect(() => {
     if (activeChatData) {
@@ -38,69 +30,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (e.target.closest(".button-container")) return;
+    activeChatRef.current = activeChat;
+  }, [activeChat]);
 
-      if (
-        imagePreviewRef?.current &&
-        !imagePreviewRef?.current.contains(e.target)
-      ) {
-        dispatch(setImagePreview(false));
-        dispatch(setImageUrl(null));
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (token && !user) {
-      const fetchUser = async () => {
-        try {
-          const { data } = await axios.get(BACKEND_USER + "/", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (data?.success) {
-            dispatch(setUser(data?.data));
-          }
-        } catch (error) {
-          handleError({
-            error,
-            message: error?.response?.data?.msg,
-          });
-        }
-      };
-
-      fetchUser();
-    }
-  }, []);
-
-  useFetchContacts();
-
-  useEffect(() => {
-    if (!user) return;
-
-    connectSocket(user?._id);
-    onEvent("getOnlineUser", (users) => {
-      dispatch(setOnlineUsers(users));
-    });
-
-    return () => {
-      disconnectSocket();
-    };
-  }, [user?._id]);
-
-  useEffect(() => {
-    onEvent("messageDelivered", (id) => {
-      dispatch(updateMessageStatus({ id, status: "delivered" }));
-    });
-  }, [messages]);
-
+  // Check if user is online or not
   useEffect(() => {
     if (contacts) {
       contacts?.find(
@@ -111,98 +44,26 @@ function App() {
     }
   }, [contacts]);
 
+  // socket connection
   useEffect(() => {
-    activeChatRef.current = activeChat;
-  }, [activeChat]);
+    if (!user) return;
 
-  useEffect(() => {
-    const handlePopState = (e) => {
-      const state = e.state || {};
+    connectSocket(user?._id);
 
-      if (!state.imagePreview) {
-        dispatch(setImagePreview(false));
-        dispatch(setImageUrl(null));
-      }
+    onEvent("getOnlineUser", (users) => {
+      dispatch(setOnlineUsers(users));
+    });
 
-      if (!state.chatOpen) {
-        dispatch(setActiveChat(null));
-        sessionStorage.removeItem("activeChat");
-      }
+    return () => {
+      disconnectSocket();
     };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  const handleDownload = (url, filename) => {
-    // insert fl_attachment into the Cloudinary URL to download file
-    const downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
-
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleImagePreviewBack = () => {
-    const currentState = { ...history.state };
-    if (currentState.imagePreview) {
-      delete currentState.imagePreview;
-      history.replaceState(currentState, "");
-    }
-    dispatch(setImagePreview(false));
-    dispatch(setImageUrl(null));
-  };
+  }, [user?._id]);
 
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<ProtectiveRoute />}>
-          <Route
-            path="/"
-            element={
-              <div className={`flex max-[748px]:flex-col h-svh bg-gray-100`}>
-                <Sidebar />
-                <div
-                  className={`flex ${
-                    !activeChat ? "max-[748px]:hidden" : ""
-                  } w-full flex-col h-svh relative w-3/4`}
-                >
-                  {activeChat ? <ChatContainer /> : <WelcomeScreen />}
-                </div>
-                {imagePreview && (
-                  <div className="absolute p-2 max-ml:p-1 flex flex-col  gap-2 text-white inset-0 z-50 w-full h-ful bg-black/70 backdrop-blur-lg backdrop-saturate-150">
-                    <div className="button-container max-ml:text-sm flex items-center gap-3 w-full">
-                      <button
-                        onClick={handleImagePreviewBack}
-                        className="cursor-pointer p-1 rounded-full hover:bg-[#303030]"
-                      >
-                        <ArrowLeft className="w-10 max-ml:w-5" />
-                      </button>
-                      <h1 className="w-full">{imageUrl?.name}</h1>
-                      <button
-                        onClick={() => {
-                          handleDownload(imageUrl?.url, imageUrl?.name);
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <Download className="w-10 max-ml:w-5" />
-                      </button>
-                    </div>
-                    <div className="w-full h-[90%] flex justify-center items-center rounded-md">
-                      <img
-                        src={imageUrl?.url}
-                        ref={imagePreviewRef}
-                        className="object-contain min-w-48 max-w-[90%] max-ml:max-w-full max-h-[100%] rounded-md"
-                        alt=""
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            }
-          />
+          <Route path="/" element={<Body />} />
         </Route>
         <Route element={<LoginBlocker />}>
           <Route path="/signup" element={<Signup />} />

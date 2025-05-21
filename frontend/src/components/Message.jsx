@@ -1,5 +1,5 @@
 import { Check, CheckCheck, Download } from "lucide-react";
-import { formatBytes, formatTime } from "../utils/constant";
+import { formatBytes, formatTime, handleDownload } from "../utils/constant";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useRef } from "react";
 import { setImagePreview, setImageUrl } from "../redux/stateSlice";
@@ -17,18 +17,6 @@ const Message = ({ text, time, isSent, media, status }) => {
   const handleDocOpen = (docUrl) => {
     const url = `https://docs.google.com/gview?url=${docUrl}&embedded=true`;
     window.open(url);
-  };
-
-  const handleDownload = (url, filename) => {
-    // insert fl_attachment into the Cloudinary URL to download file
-    const downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
-
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const scrollRef = useRef(null);

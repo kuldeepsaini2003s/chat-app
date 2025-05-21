@@ -2,10 +2,9 @@ import { io } from "socket.io-client";
 import { BACKEND_SOCKET } from "../src/utils/constant";
 
 let socketInstance = null;
-
 export const connectSocket = (userId) => {
   if (socketInstance) return;
-  
+
   if (!socketInstance) {
     socketInstance = io(BACKEND_SOCKET, {
       query: {

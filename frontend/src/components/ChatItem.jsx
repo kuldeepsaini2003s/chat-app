@@ -19,9 +19,16 @@ const ChatItem = ({ chat, isActive, onClick }) => {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between mb-1">
           <span className="font-medium truncate">{chat?.name}</span>
+          <span
+            className={`${
+              chat?.unSeen > 0 ? "text-green-500" : "text-gray-500"
+            } text-xs flex-shrink-0 font-medium`}
+          >
+            {formatTime(chat?.time)}
+          </span>
         </div>
-        <div className="flex justify-between items-center gap-1.5">
-          <p className="text-sm flex items-center gap-1">
+        <div className="text-sm  flex justify-between items-center gap-1.5">
+          <p className="flex items-center gap-1">
             <span>
               <>
                 {chat?.status === "sent" && <Check color="#6a7282" size={14} />}
@@ -49,9 +56,11 @@ const ChatItem = ({ chat, isActive, onClick }) => {
               )}
             </span>
           </p>
-          <p className="text-xs flex-shrink-0 text-gray-500 font-medium">
-            {formatTime(chat?.time)}
-          </p>
+          {chat?.unSeen > 0 && (
+            <p className="rounded-full text-[10px] flex items-center justify-center bg-green-500 text-white w-4 h-4">
+              {chat?.unSeen}
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -17,16 +17,22 @@ const chatSchema = new Schema(
       },
     ],
     messages: [
-      { 
+      {
         type: Schema.Types.ObjectId,
         ref: "Message",
       },
-    ],    
+    ],
     lastMessage: {
       type: Schema.Types.ObjectId,
       ref: "Message",
       require: true,
     },
+    unSeenMessages: [
+      {
+        user: { type: Schema.Types.ObjectId, ref: "User" },
+        count: { type: Number, default: 0 },
+      },
+    ],
   },
   { timeStamps: true }
 );

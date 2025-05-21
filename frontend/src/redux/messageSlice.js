@@ -11,6 +11,9 @@ const messageSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload;
     },
+    appendMessage: (state, action) => {
+      state.messages.push(action.payload);
+    },
     updateMessageStatus: (state, action) => {
       const { id, status } = action.payload;
       const msg = state.messages.find((m) => m._id === id);
@@ -21,6 +24,7 @@ const messageSlice = createSlice({
   },
 });
 
-export const { setMessages, updateMessageStatus } = messageSlice.actions;
+export const { setMessages, updateMessageStatus, appendMessage } =
+  messageSlice.actions;
 
 export default messageSlice.reducer;

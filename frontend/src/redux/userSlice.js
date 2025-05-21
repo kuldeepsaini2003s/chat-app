@@ -27,9 +27,10 @@ const userSlice = createSlice({
         (chat) => chat.chatId === lastMessage.chatId
       );
       if (updateMessage) {
-        updateMessage.lastMessage = lastMessage.message;
-        updateMessage.time = lastMessage.time;
-        updateMessage.status = lastMessage.status;
+        updateMessage.lastMessage = lastMessage?.message;
+        updateMessage.time = lastMessage?.time;
+        updateMessage.status = lastMessage?.status;
+        updateMessage.unSeen = lastMessage?.unSeen;
       }
     },
   },

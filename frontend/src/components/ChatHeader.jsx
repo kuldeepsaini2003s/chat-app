@@ -14,7 +14,10 @@ const ChatHeader = () => {
   useEffect(() => {
     const isOnline = onlineUsers?.includes(activeChat?._id)
       ? "Online"
-      : `${getLastSeen(activeChat?.lastSeen)}`;
+      : activeChat?.lastSeen
+      ? `${getLastSeen(activeChat?.lastSeen)}`
+      : "Offline";
+
     setLastSeen(isOnline);
   }, [onlineUsers, activeChat, contacts]);
 
