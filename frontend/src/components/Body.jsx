@@ -10,7 +10,7 @@ const Body = () => {
   const { imagePreview } = useSelector((state) => state.state);
 
   return (
-    <div className={`flex max-[748px]:flex-col h-svh bg-gray-100`}>
+    <div className={`flex max-[748px]:flex-col h-svh`}>
       <Sidebar />
       <div
         className={`flex ${

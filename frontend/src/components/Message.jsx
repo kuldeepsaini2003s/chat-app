@@ -44,15 +44,20 @@ const Message = ({ text, time, isSent, media, status }) => {
             {media?.type === "pdf" ? (
               <div
                 ref={scrollRef}
-                className={`message-bubble min-w-[20rem] flex flex-col rounded-md max-w-[20rem] rounded-xl bg-[#dcf8c6] p-3 shadow-md ${messageClass}`}
+                className={`${
+                  isSent
+                    ? "bg-green dark:bg-darkGreen self-end"
+                    : "self-start dark:bg-lightBlack bg-white"
+                }  message-bubble min-w-[20rem] flex flex-col rounded-md max-w-[20rem] rounded-xl p-3 shadow-md`}
               >
+                {/* PDF file message card */}
                 <div className="flex items-center gap-4">
                   <img src="/PDF.svg" alt="pdf" className="w-10 h-10" />
                   <div className="flex flex-col">
-                    <p className="text-xs line-clamp-2 font-medium text-gray-900">
+                    <p className="text-xs line-clamp-2 font-medium ">
                       {media?.name}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-text dark:text-darkText">
                       {formatBytes(media?.size)}, Microsoft Edge PDF Document.
                     </p>
                   </div>
@@ -76,15 +81,20 @@ const Message = ({ text, time, isSent, media, status }) => {
                   {index === 0 && (
                     <span className="text-sm break-words">{text}</span>
                   )}
-                  <span className="text-[10px] flex gap-1  text-gray-500 pl-2 whitespace-nowrap">
+                  <span className="text-[10px] flex gap-1 dark:text-darkText pl-2 whitespace-nowrap">
                     {formatTime(time)}{" "}
-                    <>
-                      {status === "sent" && <Check size={14} />}
-                      {status === "delivered" && <CheckCheck size={14} />}
-                      {status === "seen" && (
-                        <CheckCheck size={14} color="#4FB4E0" />
-                      )}
-                    </>
+                    {messageClass === "sent" && (
+                      <>
+                        {status === "sent" && <Check size={14} />}
+                        {status === "delivered" && <CheckCheck size={14} />}
+                        {status === "seen" && (
+                          <CheckCheck
+                            size={14}
+                            className="text-blue dark:text-darkBlue"
+                          />
+                        )}
+                      </>
+                    )}
                   </span>
                 </div>
               </div>
@@ -94,8 +104,13 @@ const Message = ({ text, time, isSent, media, status }) => {
                 onClick={() =>
                   handleOpenImagePreview({ url: media?.url, name: media?.name })
                 }
-                className={`text-sm cursor-pointer message-bubble rounded-md max-w-[20rem] flex flex-col px-2 py-2 ${messageClass}`}
+                className={`${
+                  isSent
+                    ? "bg-green dark:bg-darkGreen self-end"
+                    : "self-start dark:bg-lightBlack bg-white"
+                }  text-sm cursor-pointer message-bubble rounded-md max-w-[20rem] flex flex-col px-2 py-2 `}
               >
+                {/* Image message card */}
                 <img
                   src={media?.url}
                   alt="image"
@@ -105,30 +120,40 @@ const Message = ({ text, time, isSent, media, status }) => {
                   {index === 0 && (
                     <span className="text-sm break-words">{text}</span>
                   )}
-                  <span className="text-[10px] flex gap-1  text-gray-500 pl-2 whitespace-nowrap">
+                  <span className="text-[10px] flex gap-1 dark:text-darkText pl-2 whitespace-nowrap">
                     {formatTime(time)}{" "}
-                    <>
-                      {status === "sent" && <Check size={14} />}
-                      {status === "delivered" && <CheckCheck size={14} />}
-                      {status === "seen" && (
-                        <CheckCheck size={14} color="#4FB4E0" />
-                      )}
-                    </>
+                    {messageClass === "sent" && (
+                      <>
+                        {status === "sent" && <Check size={14} />}
+                        {status === "delivered" && <CheckCheck size={14} />}
+                        {status === "seen" && (
+                          <CheckCheck
+                            size={14}
+                            className="text-blue dark:text-darkBlue"
+                          />
+                        )}
+                      </>
+                    )}
                   </span>
                 </div>
               </div>
             ) : (
               <div
                 ref={scrollRef}
-                className={`message-bubble min-w-[20rem] flex flex-col rounded-md max-w-[20rem] rounded-xl bg-[#dcf8c6] p-3 shadow-sm ${messageClass}`}
+                className={`${
+                  isSent
+                    ? "bg-green dark:bg-darkGreen self-end"
+                    : "self-start dark:bg-lightBlack bg-white"
+                }  message-bubble min-w-[20rem] flex flex-col rounded-md max-w-[20rem] rounded-xl p-3 shadow-sm`}
               >
+                {/* Doc file message card */}
                 <div className="flex items-center gap-4">
                   <img src="/word-1.svg" alt="doc" className="w-8 h-8" />
                   <div className="flex flex-col">
-                    <p className="text-xs font-medium line-clamp-2 text-gray-900">
+                    <p className="text-xs font-medium line-clamp-2">
                       {media?.name}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-text dark:text-darkText">
                       {formatBytes(media?.size)}, Microsoft Office Word
                       Document.
                     </p>
@@ -154,15 +179,20 @@ const Message = ({ text, time, isSent, media, status }) => {
                   {index === 0 && (
                     <span className="text-sm break-words">{text}</span>
                   )}
-                  <span className="text-[10px] flex gap-1  text-gray-500 pl-2 whitespace-nowrap">
+                  <span className="text-[10px] flex gap-1 dark:text-darkText pl-2 whitespace-nowrap">
                     {formatTime(time)}{" "}
-                    <>
-                      {status === "sent" && <Check size={14} />}
-                      {status === "delivered" && <CheckCheck size={14} />}
-                      {status === "seen" && (
-                        <CheckCheck size={14} color="#4FB4E0" />
-                      )}
-                    </>
+                    {messageClass === "sent" && (
+                      <>
+                        {status === "sent" && <Check size={14} />}
+                        {status === "delivered" && <CheckCheck size={14} />}
+                        {status === "seen" && (
+                          <CheckCheck
+                            size={14}
+                            className="text-blue dark:text-darkBlue"
+                          />
+                        )}
+                      </>
+                    )}
                   </span>
                 </div>
               </div>
@@ -172,17 +202,28 @@ const Message = ({ text, time, isSent, media, status }) => {
       ) : (
         <div
           ref={scrollRef}
-          className={`message-bubble ${messageClass} px-2 py-2 rounded-lg max-w-[80%] flex flex-col relative bg-green-100`}
+          className={`message-bubble ${
+            isSent
+              ? "bg-green dark:bg-darkGreen self-end"
+              : "self-start dark:bg-lightBlack bg-white"
+          } px-2 py-2 rounded-lg max-w-[80%] flex flex-col relative`}
         >
           <div className="flex items-end">
             <span className="text-sm break-words">{text}</span>
-            <span className="text-[10px] flex gap-1  text-gray-500 pl-2 whitespace-nowrap">
+            <span className="text-[10px] flex gap-1   dark:text-darkText dark:text-[#E9EDEF] pl-2 whitespace-nowrap">
               {formatTime(time)}{" "}
-              <>
-                {status === "sent" && <Check size={14} />}
-                {status === "delivered" && <CheckCheck size={14} />}
-                {status === "seen" && <CheckCheck size={14} color="#4FB4E0" />}
-              </>
+              {messageClass === "sent" && (
+                <>
+                  {status === "sent" && <Check size={14} />}
+                  {status === "delivered" && <CheckCheck size={14} />}
+                  {status === "seen" && (
+                    <CheckCheck
+                      size={14}
+                      className="text-blue dark:text-darkBlue"
+                    />
+                  )}
+                </>
+              )}
             </span>
           </div>
         </div>

@@ -16,7 +16,9 @@ const VoiceMessage = ({ message, isSent }) => {
             <div key={i} className="wave-bar"></div>
           ))}
         </div>
-        <span className="text-xs text-gray-500 ml-2">{message.duration}</span>
+        <span className="text-xs  dark:text-darkText ml-2">
+          {message.duration}
+        </span>
       </div>
     </div>
   );

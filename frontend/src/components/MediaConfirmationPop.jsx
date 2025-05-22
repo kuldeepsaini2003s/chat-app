@@ -27,16 +27,16 @@ const MediaConfirmationPop = () => {
       </div>
 
       {/* Popup buttons */}
-      <div className="flex px-4 pb-4 gap-3">
+      <div className="flex px-4 pb-4 gap-3 text-sm">
         <button
           onClick={handleDiscard}
-          className="flex-1 text-white py-2 px-4 font-medium bg-green-600 rounded-md hover:bg-green-700 transition-colors text-center"
+          className="flex-1 text-white py-2 px-4 font-medium bg-green-500 rounded-md hover:bg-green-500 transition-colors text-center"
         >
           Discard
         </button>
         <button
           onClick={handleReturn}
-          className="flex-1 py-2 px-4 font-medium bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors text-center"
+          className="flex-1 py-2 px-4 font-medium bg-black text-white rounded-md hover:bg-gray-600 transition-colors text-center"
         >
           Return to media
         </button>

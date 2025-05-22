@@ -120,24 +120,24 @@ const MediaPreview = ({ inputRef }) => {
   }, []);
 
   return (
-    <div className="flex flex-col w-[45vw] h-[80vh] rounded-md shadow-2xl bg-gray-100 text-gray-800">
+    <div className="flex flex-col w-[45vw] h-[80vh] rounded-xl shadow-2xl">
       {/* Header */}
-      <div className="flex items-center gap-5 justify-end bg-white rounded-t-md border-b p-1 border-gray-200">
+      <div className="flex items-center gap-5 justify-end bg-white dark:bg-black rounded-t-md border-b p-1 border-lightGray dark:border-lightBlack">
         <button
           onClick={removeMedia}
-          className="p-1 text-gray-600 hover:bg-gray-200 rounded-full hover:text-gray-800"
+          className="p-2 hover:bg-lightGray dark:hover:bg-lightBlack rounded-full"
         >
-          <Trash2 size={22} />
+          <Trash2 size={18} />
         </button>
         <button
           onClick={closeMedia}
-          className="p-1 text-gray-600 hover:bg-gray-200 rounded-full hover:text-gray-800"
+          className="p-2 hover:bg-lightGray dark:hover:bg-lightBlack rounded-full"
         >
-          <X size={22} />
+          <X size={20} />
         </button>
       </div>
       {/* Media Preview Area */}
-      <div className="flex-1 flex items-center justify-center bg-gray-200">
+      <div className="flex-1 flex items-center justify-center bg-lightGray dark:bg-lightBlack">
         <input
           onChange={handleFileChange}
           type="file"
@@ -149,7 +149,7 @@ const MediaPreview = ({ inputRef }) => {
         <div className="relative w-full h-full max-h-[51vh] flex flex-col items-center justify-around">
           <button
             onClick={handleAddFile}
-            className="absolute cursor-pointer right-2 bottom-1 bg-green-600 hover:bg-green-700 rounded-full p-2 ml-2"
+            className="absolute cursor-pointer right-2 bottom-1 bg-green-500 dark:bg-green-700 hover:bg-green-700 rounded-full p-2 ml-2"
           >
             <Plus size={24} className="text-white" />
           </button>
@@ -194,13 +194,13 @@ const MediaPreview = ({ inputRef }) => {
           )}
         </div>
       </div>
-      <div className="flex gap-5 border-y border-gray-300 shadow-md px-2 pt-2 pb-3">
+      <div className="flex bg-white dark:bg-black gap-5 border-y border-lightGray dark:border-lightBlack shadow-md px-2 pt-2 pb-3">
         {mediaFiles.map((media, index) => (
           <div key={index}>
             {media?.file?.type?.startsWith("application/pdf") ? (
               <div
                 onClick={() => handleSelectedMedia(index)}
-                className={`w-14 h-12 relative rounded-md flex justify-center items-center bg-gray-300 shadow-2xl`}
+                className={`w-14 h-12 relative rounded-xl flex justify-center items-center bg-lightGray dark:bg-lightBlack shadow-2xl`}
               >
                 <img
                   src="/PDF.svg"
@@ -208,13 +208,13 @@ const MediaPreview = ({ inputRef }) => {
                   alt="media"
                 />
                 {mediaSelected === index && (
-                  <p className="border-b-[3px] border-green-600 rounded-full w-[90%] absolute -bottom-2 "></p>
+                  <p className="border-b-[3px] border-green-500 dark:border-green-800 rounded-full w-[90%] absolute -bottom-2 "></p>
                 )}
               </div>
             ) : media?.file?.type?.startsWith("application/vnd") ? (
               <div
                 onClick={() => handleSelectedMedia(index)}
-                className={`w-14 h-12 relative rounded-md flex justify-center items-center bg-gray-300 shadow-2xl`}
+                className={`w-14 h-12 relative rounded-xl flex justify-center items-center bg-lightGray dark:bg-lightBlack shadow-2xl`}
               >
                 <img
                   src="/microsoftWord.svg"
@@ -222,21 +222,21 @@ const MediaPreview = ({ inputRef }) => {
                   alt="media"
                 />
                 {mediaSelected === index && (
-                  <p className="border-b-[3px] border-green-600 rounded-full w-[90%] absolute -bottom-2 "></p>
+                  <p className="border-b-[3px] border-green-500 dark:border-green-800 rounded-full w-[90%] absolute -bottom-2 "></p>
                 )}
               </div>
             ) : (
               <div
                 onClick={() => handleSelectedMedia(index)}
-                className={`w-14 h-12 relative rounded-md flex justify-center items-center bg-gray-300 shadow-2xl`}
+                className={`w-14 h-12 relative rounded-xl flex justify-center items-center bg-lightGray dark:bg-lightBlack shadow-2xl`}
               >
                 <img
                   src={media?.url}
-                  className="w-full h-full object-center rounded-md object-contain"
+                  className="w-full h-full object-center rounded-xl object-contain"
                   alt="media"
                 />
                 {mediaSelected === index && (
-                  <p className="border-b-[3px] border-green-600 rounded-full w-[90%] absolute -bottom-2 "></p>
+                  <p className="border-b-[3px] border-green-500 dark:border-green-800 rounded-full w-[90%] absolute -bottom-2 "></p>
                 )}
               </div>
             )}
@@ -245,15 +245,15 @@ const MediaPreview = ({ inputRef }) => {
       </div>
 
       {/* Caption Input Area */}
-      <div className="rounded-b-md bg-white border-t border-gray-200">
-        <div className="flex px-2 py-4 items-center rounded-md bg-gray-100 rounded-full p-1">
+      <div className="rounded-b-md bg-white dark:bg-black border-t border-lightGray dark:border-lightBlack">
+        <div className="flex px-2 py-2 items-center rounded-xl  rounded-full p-1">
           <div className="flex-1 gap-2 flex items-center">
             <div ref={emojiPickerRef}>
               <button
                 onClick={() => setShowEmojiPicker((prev) => !prev)}
-                className="text-gray-500 cursor-pointer"
+                className="dark:text-darkText hover:bg-lightGray hover:dark:bg-lightBlack p-2 rounded-full cursor-pointer"
               >
-                <Smile size={20} />
+                <Smile size={18} />
               </button>
               {showEmojiPicker && (
                 <div className="absolute bottom-14 left-3 z-10">
@@ -265,7 +265,7 @@ const MediaPreview = ({ inputRef }) => {
               type="text"
               placeholder="Add a caption..."
               ref={captionRef}
-              className="flex-1 bg-transparent outline-none px-2 text-gray-800 placeholder-gray-500"
+              className="flex-1 bg-transparent outline-none px-2 border rounded-full px-3 py-1 dark:border-lightBlack border-lightGray text-gray-800 placeholder-gray-500"
               value={caption}
               onKeyDown={(e) => {
                 if (e?.key === "Enter") {
@@ -277,9 +277,9 @@ const MediaPreview = ({ inputRef }) => {
           </div>
           <button
             onClick={handleSend}
-            className="bg-green-600 rounded-full p-2 ml-2 cursor-pointer"
+            className="bg-green-500 dark:bg-green-700 rounded-full p-2 ml-2 cursor-pointer"
           >
-            <SendHorizontal size={20} className="text-white" />
+            <SendHorizontal size={16} className="text-white" />
           </button>
         </div>
       </div>

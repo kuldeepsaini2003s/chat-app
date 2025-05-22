@@ -28,13 +28,13 @@ const ChatHeader = () => {
   };
 
   return (
-    <div className="p-3 bg-gray-100 flex justify-between items-center border-b border-gray-200">
+    <div className="p-2 flex justify-between items-center border-b border-lightGray dark:border-lightBlack">
       <div className="flex items-center gap-3">
-        <button onClick={closeChat}>
-          <ArrowLeft
-            size={18}
-            className="cursor-pointer text-gray-600 hover:text-gray-800"
-          />
+        <button
+          onClick={closeChat}
+          className="cursor-pointer p-2 rounded-full hover:bg-lightGray dark:hover:bg-lightBlack"
+        >
+          <ArrowLeft size={16} />
         </button>
         <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden">
           <img
@@ -45,18 +45,18 @@ const ChatHeader = () => {
         </div>
         <div>
           <div className="font-medium">{activeChat?.name}</div>
-          <div className="text-xs text-gray-500">{lastSeem}</div>
+          <div className="text-xs  dark:text-darkText">{lastSeem}</div>
         </div>
       </div>
-      <div className="flex gap-4 text-gray-600">
-        <button className="hover:text-gray-800">
-          <Phone size={20} />
+      <div className="flex gap-4">
+        <button className="p-2 rounded-full hover:bg-lightGray dark:hover:bg-lightBlack">
+          <Phone size={18} />
         </button>
-        <button className="hover:text-gray-800">
-          <Video size={22} />
+        <button className="p-2 rounded-full hover:bg-lightGray dark:hover:bg-lightBlack">
+          <Video size={20} />
         </button>
-        <button className="hover:text-gray-800">
-          <Search size={20} />
+        <button className="p-2 rounded-full hover:bg-lightGray dark:hover:bg-lightBlack">
+          <Search size={17} />
         </button>
       </div>
     </div>

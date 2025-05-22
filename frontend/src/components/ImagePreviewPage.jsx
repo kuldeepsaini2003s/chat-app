@@ -1,4 +1,4 @@
-import { ArrowLeft, Download } from "lucide-react";
+import { Download, X } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setImagePreview, setImageUrl } from "../redux/stateSlice";
@@ -57,21 +57,21 @@ const ImagePreviewPage = () => {
 
   return (
     <div className="absolute p-2 max-ml:p-1 flex flex-col  gap-2 text-white inset-0 z-50 w-full h-ful bg-black/70 backdrop-blur-lg backdrop-saturate-150">
-      <div className="button-container max-ml:text-sm flex items-center gap-3 w-full">
-        <button
-          onClick={handleImagePreviewBack}
-          className="cursor-pointer p-1 rounded-full hover:bg-[#303030]"
-        >
-          <ArrowLeft className="w-10 max-ml:w-5" />
-        </button>
-        <h1 className="w-full">{imageUrl?.name}</h1>
+      <div className="button-container text-text dark:text-darkText max-ml:text-sm flex items-center gap-3 w-full">
+        <h1 className="w-full text-white">{imageUrl?.name}</h1>
         <button
           onClick={() => {
             handleDownload(imageUrl?.url, imageUrl?.name);
           }}
-          className="cursor-pointer"
+          className="cursor-pointer p-2 rounded-full hover:bg-[#303030]"
         >
-          <Download className="w-10 max-ml:w-5" />
+          <Download className="max-ml:w-5" />
+        </button>
+        <button
+          onClick={handleImagePreviewBack}
+          className="cursor-pointer p-2 rounded-full hover:bg-[#303030]"
+        >
+          <X className="max-ml:w-5" />
         </button>
       </div>
       <div className="w-full h-[90%] flex justify-center items-center rounded-md">

@@ -4,12 +4,14 @@ import { formatTime } from "../utils/constant";
 const ChatItem = ({ chat, isActive, onClick }) => {
   return (
     <div
-      className={`flex p-2 rounded-md border-gray-100 cursor-pointer transition-colors ${
-        isActive ? "bg-gray-100" : "hover:bg-gray-100"
+      className={`flex p-2 rounded-xl border-gray-100 cursor-pointer transition-colors ${
+        isActive
+          ? "bg-lightGray dark:bg-lightBlack"
+          : "hover:bg-lightGray dark:hover:bg-lightBlack"
       }`}
       onClick={onClick}
     >
-      <div className="w-12 h-12 rounded-full bg-gray-300 mr-3 overflow-hidden flex-shrink-0">
+      <div className="w-12 h-12  rounded-full bg-gray-300 mr-3 overflow-hidden flex-shrink-0">
         <img
           src={chat?.avatar}
           alt={chat?.name}
@@ -21,7 +23,9 @@ const ChatItem = ({ chat, isActive, onClick }) => {
           <span className="font-medium truncate">{chat?.name}</span>
           <span
             className={`${
-              chat?.unSeen > 0 ? "text-green-500" : "text-gray-500"
+              chat?.unSeen > 0
+                ? "text-green-500"
+                : " dark:text-darkText dark:text-[#ABACAC]"
             } text-xs flex-shrink-0 font-medium`}
           >
             {formatTime(chat?.time)}
@@ -36,11 +40,14 @@ const ChatItem = ({ chat, isActive, onClick }) => {
                   <CheckCheck color="#6a7282" size={14} />
                 )}
                 {chat?.status === "seen" && (
-                  <CheckCheck size={14} color="#4FB4E0" />
+                  <CheckCheck
+                    size={14}
+                    className="text-blue dark:text-darkBlue"
+                  />
                 )}
               </>
             </span>
-            <span className="flex items-center gap-1 text-gray-500 line-clamp-1">
+            <span className="flex items-center gap-1  dark:text-darkText line-clamp-1">
               {chat?.type === "image" ? (
                 <>
                   {" "}

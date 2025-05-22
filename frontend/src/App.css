@@ -7,6 +7,30 @@
 @theme {
   ---breakpoint-*: initial;
   --breakpoint-ml: 426px;
+  --color-black: #161717;
+  --color-darkBlack: #242626;
+  --color-lightBlack: #2e2f2f;
+  --color-gray: #fafafa;
+  --color-white: #ffffff;
+  --color-green: #d9fdd3;
+  --color-darkGreen: #144d37;
+  --color-blue: #007bfc;
+  --color-darkBlue: #53bdeb;
+  --color-lightGray: #f6f5f4;
+  --color-text: #626262;
+  --color-darkText: #abacac;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.light {
+  background-color: var(--color-white);
+  color: black;
+}
+
+.dark {
+  background-color: var(--color-black);
+  color: white;
 }
 
 /* Custom CSS for complex elements */
@@ -24,7 +48,7 @@
 }
 
 .message-bubble.sent {
-  background: #d0fdc8;
+  background: var(--color-green);
   align-self: flex-end;
   border-top-right-radius: 0;
 }

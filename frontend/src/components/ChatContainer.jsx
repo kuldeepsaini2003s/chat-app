@@ -47,7 +47,7 @@ const ChatContainer = () => {
       <MessageContainer />
       <MessageInput />
       {confirmationPop && (
-        <div className="absolute z-10 h-svh top-0 w-full flex items-center justify-center">
+        <div className="absolute bg-black/30 z-10 h-svh top-0 w-full flex items-center justify-center">
           <MediaConfirmationPop />
         </div>
       )}

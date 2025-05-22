@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import EmojiSelector from "./EmojiSelector";
-import { Paperclip, Smile } from "lucide-react";
+import { Mic, Paperclip, Smile } from "lucide-react";
+
 import MediaPreview from "./MediaPreview";
 import { useDispatch, useSelector } from "react-redux";
 import { setMediaFiles, setMediaPreview } from "../redux/stateSlice";
@@ -136,16 +137,16 @@ const MessageInput = () => {
 
   return (
     <div>
-      <div className="p-3 bg-gray-100 flex items-center relative">
-        <div className="flex gap-3 text-gray-600">
+      <div className="p-2 flex gap-2 items-center relative">
+        <div className="flex items-center">
           <button
-            className="hover:text-gray-800"
+            className="hover:bg-lightGray dark:hover:bg-lightBlack p-2 rounded-full"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           >
             <Smile size={18} />
           </button>
           <button
-            className="hover:text-gray-800"
+            className="hover:bg-lightGray dark:hover:bg-lightBlack p-2 rounded-full"
             onClick={() => setShowAttachOptions(!showAttachOptions)}
           >
             <Paperclip size={18} />
@@ -161,7 +162,7 @@ const MessageInput = () => {
         {showAttachOptions && (
           <div
             ref={attachOptionsRef}
-            className="absolute bottom-14 left-12 bg-white rounded-xl shadow-lg z-10"
+            className="absolute bottom-14 left-12 bg-white dark:bg-black rounded-xl shadow-lg z-10"
           >
             <div className="flex flex-col gap-3">
               <input
@@ -174,7 +175,7 @@ const MessageInput = () => {
               />
               <button
                 onClick={handleFile}
-                className="flex items-center px-4 py-2 hover:bg-gray-100 rounded-lg"
+                className="flex items-center px-4 py-2 hover:bg-lightGray dark:hover:bg-lightBlack dark:hover:bg-lightBlack rounded-t-xl"
               >
                 <div className="w-6 h-6 rounded-full bg-[#7f66ff] text-white flex items-center justify-center mr-3">
                   <i className="fas fa-images text-xs"></i>
@@ -191,20 +192,20 @@ const MessageInput = () => {
               />
               <button
                 onClick={handleDoc}
-                className="flex items-center px-4 py-2 hover:bg-gray-100 rounded-lg"
+                className="flex items-center px-4 py-2 hover:bg-lightGray dark:hover:bg-lightBlack"
               >
                 <div className="w-6 h-6 rounded-full bg-[#5157ae] text-white flex items-center justify-center mr-3">
                   <i className="fas fa-file-alt text-xs"></i>
                 </div>
                 <span>Document</span>
               </button>
-              <button className="flex items-center px-4 py-2 hover:bg-gray-100 rounded-lg">
+              <button className="flex items-center px-4 py-2 hover:bg-lightGray dark:hover:bg-lightBlack">
                 <div className="w-6 h-6 rounded-full bg-[#ff3b5c] text-white flex items-center justify-center mr-3">
                   <i className="fas fa-camera text-xs"></i>
                 </div>
                 <span>Camera</span>
               </button>
-              <button className="flex items-center px-4 py-2 hover:bg-gray-100 rounded-lg">
+              <button className="flex items-center px-4 py-2 hover:bg-lightGray dark:hover:bg-lightBlack rounded-b-xl">
                 <div className="w-6 h-6 rounded-full bg-[#0aa679] text-white flex items-center justify-center mr-3">
                   <i className="fas fa-user text-xs"></i>
                 </div>
@@ -222,7 +223,7 @@ const MessageInput = () => {
 
         <input
           type="text"
-          className="flex-1 mx-3 px-3 py-2 p-2 bg-white rounded-lg border border-gray-200 outline-none text-sm"
+          className="flex-1 px-3 py-2 rounded-full border border-lightGray dark:border-lightBlack outline-none text-sm"
           placeholder="Type a message"
           value={message}
           onChange={handleInputChange}
@@ -230,7 +231,7 @@ const MessageInput = () => {
           ref={inputRef}
         />
         <button
-          className={`text-gray-600 hover:text-gray-800 ${
+          className={`hover:bg-lightGray flex-shrink-0 dark:hover:bg-lightBlack p-2 rounded-full ${
             message.trim() ? "text-green-500" : ""
           }`}
           onClick={handleSendMessage}
@@ -238,7 +239,7 @@ const MessageInput = () => {
           {message.trim() ? (
             <i className="fas fa-paper-plane"></i>
           ) : (
-            <i className="fas fa-microphone"></i>
+            <Mic size={18} />
           )}
         </button>
       </div>
