@@ -37,7 +37,7 @@ const MessagesContainer = () => {
   }, [activeChat, messages]);
 
   return (
-    <div className="flex-1 pb-5 bg-[url('../../public/WhiteBackground.svg')] dark:bg-[url('../../public/BlackBackground.svg')] p-2 chat-container-scrollbar">
+    <div className="flex-1 pb-5 bg-[url('/WhiteBackground.svg')] dark:bg-[url('/BlackBackground.svg')] p-2 chat-container-scrollbar">
       <div className="flex  flex-col gap-2">
         {messages?.map((message) =>
           message.type === "voice" ? (
