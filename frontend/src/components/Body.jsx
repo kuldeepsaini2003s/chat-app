@@ -2,7 +2,7 @@ import React from "react";
 import ChatContainer from "./ChatContainer";
 import WelcomeScreen from "./WelcomeScreen";
 import { useSelector } from "react-redux";
-import ImagePreviewPage from "./ImagePreviewpage";
+import ImagePreviewPage from "./ImagePreviewPage";
 import Sidebar from "./Sidebar";
 
 const Body = () => {
