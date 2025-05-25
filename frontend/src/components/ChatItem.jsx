@@ -24,7 +24,7 @@ const ChatItem = ({ chat, isActive, onClick }) => {
           <span
             className={`${
               chat?.unSeen > 0
-                ? "text-green-500"
+                ? "text-[#1DAA61] dark:text-[#21C063]"
                 : " dark:text-darkText dark:text-[#ABACAC]"
             } text-xs flex-shrink-0 font-medium`}
           >
@@ -64,7 +64,7 @@ const ChatItem = ({ chat, isActive, onClick }) => {
             </span>
           </p>
           {chat?.unSeen > 0 && (
-            <p className="rounded-full text-[10px] flex items-center justify-center bg-green-500 text-white w-4 h-4">
+            <p className="rounded-full text-[10px] flex items-center justify-center bg-[#1DAA61] dark:text-black dark:bg-[#21C063] text-white w-5 flex-shrink-0 h-5">
               {chat?.unSeen}
             </p>
           )}

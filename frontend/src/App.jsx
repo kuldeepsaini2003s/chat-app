@@ -7,12 +7,22 @@ import Login from "./components/Login";
 import LoginBlocker from "./hooks/LoginBlocker";
 import ProtectiveRoute from "./hooks/ProtectiveRoute";
 import { useEffect, useRef } from "react";
-import { setActiveChat, setOnlineUsers } from "./redux/userSlice";
-import { connectSocket, disconnectSocket, onEvent } from "../socket/socket";
+import {
+  setActiveChat,
+  setOnlineUsers,
+  updateLastSeen,
+} from "./redux/userSlice";
+import {
+  connectSocket,
+  disconnectSocket,
+  getSocket,
+  onEvent,
+} from "../socket/socket";
 import ForgotPassword from "./components/ForgotPassword";
 import useHandleMessages from "./hooks/useHandleMessages";
 import useFetchUser from "./hooks/useFetchUser";
 import Body from "./components/Body";
+import { setImagePreview, setImageUrl } from "./redux/stateSlice";
 
 function App() {
   useFetchUser();
@@ -20,20 +30,21 @@ function App() {
   useHandleMessages();
   const { activeChat, user, contacts } = useSelector((store) => store?.user);
   const activeChatData = sessionStorage.getItem("activeChat");
-  const activeChatRef = useRef(activeChat);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (activeChatData) {
+      if (window.innerWidth < 748) {
+        const currentState = history?.state;
+        if (!currentState.chatOpen) {
+          history.pushState({ chatOpen: true }, "");
+        }
+      }
       dispatch(setActiveChat(JSON.parse(activeChatData)));
     }
-  }, []);
+  }, [activeChatData]);
 
-  useEffect(() => {
-    activeChatRef.current = activeChat;
-  }, [activeChat]);
-
-  // Check if user is online or not
+  // Update activeChat lastSeen
   useEffect(() => {
     if (contacts) {
       contacts?.find(
@@ -49,15 +60,34 @@ function App() {
     if (!user) return;
 
     connectSocket(user?._id);
-
     onEvent("getOnlineUser", (users) => {
       dispatch(setOnlineUsers(users));
     });
-
+    onEvent("LastSeenUpdate", (data) => {
+      dispatch(updateLastSeen(data));
+    });
     return () => {
       disconnectSocket();
     };
   }, [user?._id]);
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      const state = e.state || {};
+
+      if (!state.imagePreview) {
+        dispatch(setImagePreview(false));
+        dispatch(setImageUrl(null));
+      }
+
+      if (!state.chatOpen) {
+        dispatch(setActiveChat(null));
+        sessionStorage.removeItem("activeChat");
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   return (
     <BrowserRouter>

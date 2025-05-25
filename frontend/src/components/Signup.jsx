@@ -74,7 +74,7 @@ const Signup = () => {
   );
 
   return (
-    <div className="flex justify-center items-center bg-[#e8e8e8] h-svh w-dvw">
+    <div className="flex justify-center items-center bg-lightGray dark:bg-lightBlack h-svh w-dvw">
       <div className="form-container">
         <p className="title">Create account</p>
         <form action={submitAction} className="form text-sm">
@@ -105,14 +105,14 @@ const Signup = () => {
           <div className="flex items-center gap-5 justify-between mt-[15px]">
             <img
               src={preview}
-              className="border object-cover flex-shrink-0 rounded-full w-12 h-12"
+              className="border border-lightGray dark:border-lightBlack object-cover flex-shrink-0 rounded-full w-12 h-12"
               alt=""
             />
             <input
               type="file"
               required
               onChange={handleFileChange}
-              className="bg-[#008080] text-white px-4 py-2 rounded-md max-w-full w-52"
+              className="bg-[#008080] dark:bg-[#049c62] text-white px-4 py-2 rounded-md max-w-full w-52"
             />
           </div>
           <div className="w-full h-full place-items-center">
@@ -132,7 +132,7 @@ const Signup = () => {
             className="text-sm cursor-pointer sign-up-label"
           >
             Already have an account?{" "}
-            <span className="text-[#008080]">Log in</span>
+            <span className="text-[#008080] dark:text-[#049c62]">Log in</span>
           </button>
         </Link>
       </div>

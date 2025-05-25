@@ -74,7 +74,7 @@ const ForgotPassword = () => {
   );
 
   return (
-    <div className="flex justify-center items-center bg-[#e8e8e8] h-svh w-dvw">
+    <div className="flex justify-center items-center bg-lightGray dark:bg-lightBlack h-svh w-dvw">
       <div className="form-container">
         <p className="title">Forgot Password</p>
         <form action={submitAction} className="form text-sm">

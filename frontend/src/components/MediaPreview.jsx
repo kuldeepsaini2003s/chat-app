@@ -7,9 +7,11 @@ import {
   setMediaPreview,
 } from "../redux/stateSlice";
 import EmojiSelector from "./EmojiSelector";
-import { BACKEND_MESSAGE } from "../utils/constant";
+import { BACKEND_MESSAGE, extraFileExtension } from "../utils/constant";
 import axios from "axios";
 import useResponseHandler from "../hooks/useResponseHandler";
+import { v4 as uuid } from "uuid";
+import { setMessages } from "../redux/messageSlice";
 
 const MediaPreview = ({ inputRef }) => {
   const { handleError } = useResponseHandler();
@@ -20,6 +22,7 @@ const MediaPreview = ({ inputRef }) => {
   const emojiPickerRef = useRef(null);
   const { mediaFiles } = useSelector((store) => store?.state);
   const { user, activeChat } = useSelector((store) => store?.user);
+  const { messages } = useSelector((store) => store?.message);
   const dispatch = useDispatch();
   const captionRef = useRef(null);
 
@@ -53,6 +56,25 @@ const MediaPreview = ({ inputRef }) => {
   };
 
   const handleSend = async () => {
+    const tempId = uuid();
+
+    const newMessage = {
+      _id: tempId,
+      message: caption.trim(),
+      senderId: user?._id,
+      receiverId: activeChat._id,
+      status: "sending",
+      media: mediaFiles.map((media, i) => ({
+        url: media.url,
+        name: media.file.name,
+        type: extraFileExtension(media.file.name),
+        size: media.file.size,
+        _id: uuid(),
+      })),
+    };
+
+    dispatch(setMessages([...messages, newMessage]));
+
     const payload = new FormData();
     mediaFiles?.forEach((file, index) => {
       payload.append("media", file.file);
@@ -61,6 +83,7 @@ const MediaPreview = ({ inputRef }) => {
       }
     });
     payload.append("time", new Date());
+    payload.append("tempId", tempId);
     payload.append("senderId", user?._id);
     payload.append("receiverId", activeChat._id);
 

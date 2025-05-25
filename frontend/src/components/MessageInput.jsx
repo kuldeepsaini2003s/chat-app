@@ -1,17 +1,19 @@
 import { useState, useRef, useEffect } from "react";
 import EmojiSelector from "./EmojiSelector";
 import { Mic, Paperclip, Smile } from "lucide-react";
-
+import { v4 as uuid } from "uuid";
 import MediaPreview from "./MediaPreview";
 import { useDispatch, useSelector } from "react-redux";
 import { setMediaFiles, setMediaPreview } from "../redux/stateSlice";
 import axios from "axios";
 import { BACKEND_MESSAGE } from "../utils/constant";
 import useResponseHandler from "../hooks/useResponseHandler";
+import { setMessages } from "../redux/messageSlice";
 
 const MessageInput = () => {
   const { handleError } = useResponseHandler();
   const { activeChat, user } = useSelector((store) => store?.user);
+  const { messages } = useSelector((store) => store?.message);
   const [message, setMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showAttachOptions, setShowAttachOptions] = useState(false);
@@ -22,7 +24,9 @@ const MessageInput = () => {
   const documentRef = useRef(null);
   const mediaRef = useRef(null);
   const mediaPreviewRef = useRef(null);
+  const tempId = uuid();
   // const typingTimeoutRef = useRef(null);
+
   const dispatch = useDispatch();
   const { mediaPreview, mediaFiles } = useSelector((store) => store?.state);
 
@@ -32,12 +36,17 @@ const MessageInput = () => {
         message: message,
         senderId: user?._id,
         receiverId: activeChat?._id,
-        time: new Date(),
       };
+      dispatch(
+        setMessages([
+          ...messages,
+          { ...newMessage, _id: tempId, status: "sending" },
+        ])
+      );
       setMessage("");
       inputRef?.current?.focus();
       try {
-        await axios.post(BACKEND_MESSAGE + "/send", newMessage);
+        await axios.post(BACKEND_MESSAGE + "/send", { ...newMessage, tempId });
       } catch (error) {
         handleError({
           error,

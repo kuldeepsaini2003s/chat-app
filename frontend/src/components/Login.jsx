@@ -52,8 +52,8 @@ const Login = () => {
   );
 
   return (
-    <div className="flex justify-center items-center bg-[#e8e8e8] h-svh w-dvw">
-      <div className="form-container">
+    <div className="flex justify-center items-center bg-lightGray dark:bg-lightBlack h-svh w-dvw">
+      <div className="form-container dark:bg-black">
         <p className="title">Login</p>
         <form action={submitAction} className="form text-sm">
           <input
@@ -79,7 +79,7 @@ const Login = () => {
             <button
               type="button"
               disabled={isPending}
-              className="text-[#008080] my-2 cursor-pointer"
+              className="text-[#008080] dark:text-[#049c62] my-2 cursor-pointer"
             >
               Forgot Password
             </button>
@@ -100,7 +100,8 @@ const Login = () => {
             disabled={isPending}
             className="text-sm cursor-pointer sign-up-label"
           >
-            Don't have account? <span className="text-[#008080]">Sign Up</span>
+            Don't have account?{" "}
+            <span className="text-[#008080] dark:text-[#049c62]">Sign Up</span>
           </button>
         </Link>
       </div>

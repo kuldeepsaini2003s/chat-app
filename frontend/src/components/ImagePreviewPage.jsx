@@ -37,28 +37,12 @@ const ImagePreviewPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const handlePopState = (e) => {
-      const state = e.state || {};
-
-      if (!state.imagePreview) {
-        dispatch(setImagePreview(false));
-        dispatch(setImageUrl(null));
-      }
-
-      if (!state.chatOpen) {
-        dispatch(setActiveChat(null));
-        sessionStorage.removeItem("activeChat");
-      }
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
   return (
-    <div className="absolute p-2 max-ml:p-1 flex flex-col  gap-2 text-white inset-0 z-50 w-full h-ful bg-black/70 backdrop-blur-lg backdrop-saturate-150">
-      <div className="button-container text-text dark:text-darkText max-ml:text-sm flex items-center gap-3 w-full">
-        <h1 className="w-full text-white">{imageUrl?.name}</h1>
+    <div className="absolute p-2 max-ml:p-1 flex flex-col gap-2 text-white inset-0 z-50 w-full h-ful bg-black/70 backdrop-blur-lg backdrop-saturate-150">
+      <div className="button-container text-text dark:text-darkText max-ml:text-sm flex max-[720px]:justify-end items-center gap-3 w-full">
+        <h1 className="text-white w-full whitespace-normal break-words truncate max-[720px]:hidden">
+          {imageUrl?.name}
+        </h1>
         <button
           onClick={() => {
             handleDownload(imageUrl?.url, imageUrl?.name);
@@ -78,7 +62,7 @@ const ImagePreviewPage = () => {
         <img
           src={imageUrl?.url}
           ref={imagePreviewRef}
-          className="object-contain min-w-48 max-w-[90%] max-ml:max-w-full max-h-[100%] rounded-md"
+          className="object-contain min-w-48 max-w-full max-h-[100%] rounded-md"
           alt=""
         />
       </div>

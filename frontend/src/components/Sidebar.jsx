@@ -12,10 +12,16 @@ import axios from "axios";
 import { BACKEND_USER } from "../utils/constant";
 import { CgProfile } from "react-icons/cg";
 import { useNavigate } from "react-router-dom";
-import { setActiveChat, setContacts, setUser } from "../redux/userSlice";
+import {
+  setActiveChat,
+  setContacts,
+  setOnlineUsers,
+  setUser,
+} from "../redux/userSlice";
 import { toast } from "react-toastify";
 import { setMessages } from "../redux/messageSlice";
 import useResponseHandler from "../hooks/useResponseHandler";
+import { onEvent } from "../../socket/socket";
 
 const Sidebar = () => {
   const { handleResponse, handleError } = useResponseHandler();
@@ -25,11 +31,19 @@ const Sidebar = () => {
   const [popUp, setPopUp] = useState(false);
   const [theme, setTheme] = useState("");
   const popUpRef = useRef(null);
+  const searchContainerRef = useRef(null);
 
   useEffect(() => {
     const handleOutSideClick = (e) => {
       if (popUpRef.current && !popUpRef.current.contains(e.target)) {
         setPopUp(false);
+      }
+
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target)
+      ) {
+        setSearchQuery("");
       }
     };
     document.addEventListener("mousedown", handleOutSideClick);
@@ -147,7 +161,7 @@ const Sidebar = () => {
           >
             <EllipsisVertical size={16} />
             {popUp && (
-              <div className="w-fit z-50 flex flex-col bg-white dark:text-white dark:bg-[#1D1F1F] text-sm rounded-md shadow-2xl absolute -right-20 z-50 -bottom-26">
+              <div className="w-fit z-50 flex flex-col bg-white dark:text-white dark:bg-[#1D1F1F] text-sm rounded-md shadow-2xl absolute right-1 z-50 -bottom-28">
                 <button className="px-4 flex items-center gap-4 rounded-t-md py-2 cursor-pointer hover:bg-lightGray dark:hover:bg-[#343636]">
                   <CgProfile size={20} /> Profile
                 </button>
@@ -155,7 +169,8 @@ const Sidebar = () => {
                   onClick={toggleTheme}
                   className="flex items-center gap-4 px-4 py-2 cursor-pointer hover:bg-lightGray dark:hover:bg-[#343636]"
                 >
-                  <SunMoon size={20} /> Dark Theme
+                  <SunMoon size={20} /> {theme === "light" ? "Dark" : "light "}{" "}
+                  Theme
                 </button>
                 <button
                   onClick={handleLogout}
@@ -169,7 +184,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      <div className="p-2 relative">
+      <div ref={searchContainerRef} className="p-2 relative">
         <div className="flex gap-2 items-center bg-lightGray dark:bg-lightBlack rounded-full px-3 py-2">
           <Search size={18} className="" />
           <input

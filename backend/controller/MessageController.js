@@ -8,8 +8,7 @@ import { extraFileExtension } from "../utils/extraFileExtension.js";
 
 export const sendMessage = async (req, res) => {
   try {
-    const { senderId, receiverId, message } = req.body;
-
+    const { senderId, receiverId, message, tempId } = req.body;
     if (!senderId || !receiverId) {
       return res.status(400).json({
         success: false,
@@ -79,6 +78,7 @@ export const sendMessage = async (req, res) => {
       io.to(senderSocketId).emit("newMessage", {
         ...message.toObject(),
         time: message.createdAt,
+        tempId,
         chatId: chats._id,
       });
     }
@@ -106,7 +106,7 @@ export const sendMessage = async (req, res) => {
 
 export const mediaUpload = async (req, res) => {
   try {
-    const { message, senderId, receiverId } = req.body;
+    const { message, senderId, receiverId, tempId } = req.body;
     const mediaFile = req.files;
 
     if (!mediaFile || !senderId || !receiverId) {
@@ -213,6 +213,7 @@ export const mediaUpload = async (req, res) => {
           time: updateMessage.createdAt,
           chatId: chats._id,
           media,
+          tempId,
         });
       }
 
@@ -231,6 +232,7 @@ export const mediaUpload = async (req, res) => {
         time: message.createdAt,
         chatId: chats._id,
         media,
+        tempId,
       });
     }
 

@@ -1,11 +1,15 @@
 import { useEffect, useRef } from "react";
 import { emitEvent, getSocket, onEvent } from "../../socket/socket";
 import { updateLastMessage } from "../redux/userSlice";
-import { setMessages, updateMessageStatus } from "../redux/messageSlice";
+import {
+  setMessages,
+  updateMessageByTempId,
+  updateMessageStatus,
+} from "../redux/messageSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const useHandleMessages = () => {
-  const { activeChat } = useSelector((state) => state?.user);
+  const { activeChat, user } = useSelector((state) => state?.user);
   const { messages } = useSelector((state) => state?.message);
   const dispatch = useDispatch();
   const socket = getSocket();
@@ -19,14 +23,22 @@ const useHandleMessages = () => {
   useEffect(() => {
     const handleNewMessage = (newMessage) => {
       const activeChatId = activeChat?.chatId?.toString();
-      const newMessageChatId = newMessage?.chatId?.toString();      
-
+      const newMessageChatId = newMessage?.chatId?.toString();
+      const { tempId, ...finalMessage } = newMessage;
       if (
         activeChatId &&
         newMessageChatId &&
-        activeChatId === newMessageChatId
+        activeChatId === newMessageChatId &&
+        tempId
       ) {
-        dispatch(setMessages([...messagesRef.current, newMessage]));
+        dispatch(
+          updateMessageByTempId({
+            tempId,
+            newMessage: finalMessage,
+          })
+        );
+      } else {
+        dispatch(setMessages([...messages, finalMessage]));
       }
 
       emitEvent("lastMessage", {
@@ -34,7 +46,9 @@ const useHandleMessages = () => {
         receiverId: newMessage?.receiverId,
       });
 
-      emitEvent("messageDelivered", { messageId: newMessage?._id });
+      if (user?._id === newMessage?.receiverId) {
+        emitEvent("messageDelivered", { messageId: newMessage?._id });
+      }
     };
 
     const handleLastMessage = (lastMessage) => {

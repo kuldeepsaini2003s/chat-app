@@ -1,11 +1,15 @@
 /* From Uiverse.io by akshat-patel28 */
 .form-container {
   width: 350px;
-  background-color: #fff;
+  background-color: white;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 10px;
   box-sizing: border-box;
   padding: 20px 30px;
+}
+
+.dark .form-container {
+  background-color: black;
 }
 
 .title {
@@ -31,6 +35,10 @@
   margin-top: 15px;
 }
 
+.dark .input {
+  border: 1px solid var(--color-lightBlack);
+}
+
 .form-btn {
   padding: 10px 15px;
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
@@ -43,6 +51,10 @@
   cursor: pointer;
   width: 100%;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.dark .form-btn {
+  background: #049c62;
 }
 
 .form-btn:active {

@@ -42,13 +42,54 @@ function initSocket(server) {
         { _id: { $in: messagesId } },
         { status: "delivered" }
       );
-      undeliveredMessages.forEach((msg) => {
+      for (const msg of undeliveredMessages) {
         const senderSocketId = userSocketMap[msg.senderId];
+
         if (receiverSocketId) {
           io.to(receiverSocketId).emit("messageDelivered", msg._id);
           io.to(senderSocketId).emit("messageDelivered", msg._id);
         }
-      });
+
+        // 🔽 Emit updated lastMessage
+        const chat = await Chat.findOne({
+          participants: { $all: [msg.senderId, msg.receiverId] },
+        }).populate("lastMessage");
+
+        const media = await Media.findOne({
+          messageId: chat?.lastMessage?._id,
+        });
+
+        const imageTypes = ["jpg", "png", "jpeg", "gif", "avif", "svg"];
+
+        const senderMessage = {
+          message: chat?.lastMessage?.message,
+          chatId: chat?._id,
+          status: chat?.lastMessage?.status,
+          time: chat?.lastMessage?.createdAt,
+          type: media
+            ? imageTypes.includes(media?.type)
+              ? "image"
+              : "file"
+            : null,
+          fileName: media?.name || null,
+        };
+
+        const receiverMessage = {
+          ...senderMessage,
+          unSeen:
+            chat?.unSeenMessages?.find(
+              (entry) => entry?.user?.toString() === msg?.receiverId?.toString()
+            )?.count || 0,
+        };
+
+        if (senderSocketId) {
+          io.to(senderSocketId).emit("lastMessage", senderMessage);
+        }
+
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("lastMessage", receiverMessage);
+        }
+      }
     }
 
     socket.on("messageDelivered", async ({ messageId }) => {
@@ -60,9 +101,10 @@ function initSocket(server) {
         { new: true }
       );
 
-      if (updateStatus) {
-        const senderSocket = userSocketMap[updateStatus.senderId];
-        const receiverSocket = userSocketMap[updateStatus.receiverId];
+      const senderSocket = userSocketMap[updateStatus.senderId];
+      const receiverSocket = userSocketMap[updateStatus.receiverId];
+
+      if (receiverSocket) {
         io.to(senderSocket).emit("messageDelivered", updateStatus._id);
         io.to(receiverSocket).emit("messageDelivered", updateStatus._id);
       }
@@ -162,9 +204,10 @@ function initSocket(server) {
 
     socket.on("disconnect", async () => {
       // console.log("Socket disconnected", userSocketMap[userId]);
+      let user = null;
       for (const key in userSocketMap) {
         if (userSocketMap[key] === socket.id) {
-          await User.findByIdAndUpdate(
+          user = await User.findByIdAndUpdate(
             key,
             {
               lastSeen: new Date(),
@@ -176,6 +219,10 @@ function initSocket(server) {
         }
       }
       io.emit("getOnlineUser", Object.keys(userSocketMap));
+      io.emit("LastSeenUpdate", {
+        userId: user?._id,
+        lastSeen: user?.lastSeen,
+      });
     });
   });
 }

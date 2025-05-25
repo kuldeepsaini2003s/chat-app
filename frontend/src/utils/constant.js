@@ -72,3 +72,10 @@ export const handleDownload = (url, filename) => {
   link.click();
   document.body.removeChild(link);
 };
+
+export function extraFileExtension(url) {
+  const extension = url.includes(".") ? url.split(".").pop() : "";
+  console.log(extension);
+
+  return extension;
+}

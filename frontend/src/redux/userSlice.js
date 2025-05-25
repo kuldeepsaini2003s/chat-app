@@ -33,6 +33,13 @@ const userSlice = createSlice({
         updateMessage.unSeen = lastMessage?.unSeen;
       }
     },
+    updateLastSeen: (state, action) => {
+      const { userId, lastSeen } = action.payload;
+      const updateUser = state.contacts.find((user) => user?._id === userId);
+      if (updateUser) {
+        updateUser.lastSeen = lastSeen;
+      }
+    },
   },
 });
 
@@ -42,6 +49,7 @@ export const {
   setActiveChat,
   setOnlineUsers,
   updateLastMessage,
+  updateLastSeen,
 } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -11,6 +11,13 @@ const messageSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload;
     },
+    updateMessageByTempId: (state, action) => {
+      const { tempId, newMessage } = action.payload;
+      const index = state.messages.findIndex((msg) => msg._id === tempId);
+      if (index !== -1) {
+        state.messages[index] = newMessage;
+      }
+    },
     appendMessage: (state, action) => {
       state.messages.push(action.payload);
     },
@@ -24,7 +31,11 @@ const messageSlice = createSlice({
   },
 });
 
-export const { setMessages, updateMessageStatus, appendMessage } =
-  messageSlice.actions;
+export const {
+  setMessages,
+  updateMessageStatus,
+  appendMessage,
+  updateMessageByTempId,
+} = messageSlice.actions;
 
 export default messageSlice.reducer;
