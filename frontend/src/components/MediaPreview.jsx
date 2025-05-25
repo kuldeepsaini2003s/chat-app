@@ -25,6 +25,7 @@ const MediaPreview = ({ inputRef }) => {
   const { messages } = useSelector((store) => store?.message);
   const dispatch = useDispatch();
   const captionRef = useRef(null);
+  const mediaPreviewRef = useRef(null);
 
   useEffect(() => {
     if (mediaFiles.length > 0) {
@@ -134,6 +135,13 @@ const MediaPreview = ({ inputRef }) => {
       ) {
         setShowEmojiPicker(false);
       }
+
+      if (
+        mediaPreviewRef.current &&
+        !mediaPreviewRef.current.contains(e.target)
+      ) {
+        dispatch(setConfirmationPop(true));
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -142,10 +150,14 @@ const MediaPreview = ({ inputRef }) => {
     };
   }, []);
 
+
   return (
-    <div className="flex flex-col w-[45vw] h-[80vh] rounded-xl shadow-2xl">
+    <div
+      ref={mediaPreviewRef}
+      className="flex flex-col lg:w-[70%] max-lg:w-[90%] max-[600px]:w-[100%] h-[80vh] [600px]:rounded-tr-xl shadow-2xl"
+    >
       {/* Header */}
-      <div className="flex items-center gap-5 justify-end bg-white dark:bg-black rounded-t-md border-b p-1 border-lightGray dark:border-lightBlack">
+      <div className="flex items-center ml:gap-5 gap-2 justify-end [600px]:rounded-tr-xl bg-white dark:bg-black border-b p-1 border-lightGray dark:border-lightBlack">
         <button
           onClick={removeMedia}
           className="p-2 hover:bg-lightGray dark:hover:bg-lightBlack rounded-full"
@@ -268,8 +280,8 @@ const MediaPreview = ({ inputRef }) => {
       </div>
 
       {/* Caption Input Area */}
-      <div className="rounded-b-md bg-white dark:bg-black border-t border-lightGray dark:border-lightBlack">
-        <div className="flex px-2 py-2 items-center rounded-xl  rounded-full p-1">
+      <div className="[600px]:rounded-br-xl bg-white dark:bg-black border-t border-lightGray dark:border-lightBlack">
+        <div className="flex px-2 py-2 items-center rounded-xl rounded-full p-1">
           <div className="flex-1 gap-2 flex items-center">
             <div ref={emojiPickerRef}>
               <button
@@ -279,7 +291,7 @@ const MediaPreview = ({ inputRef }) => {
                 <Smile size={18} />
               </button>
               {showEmojiPicker && (
-                <div className="absolute bottom-14 left-3 z-10">
+                <div className="absolute bottom-14 left-1 z-10">
                   <EmojiSelector onSelect={addEmoji} />
                 </div>
               )}
@@ -288,7 +300,7 @@ const MediaPreview = ({ inputRef }) => {
               type="text"
               placeholder="Add a caption..."
               ref={captionRef}
-              className="flex-1 bg-transparent outline-none px-2 border rounded-full px-3 py-1 dark:border-lightBlack border-lightGray text-gray-800 placeholder-gray-500"
+              className="flex-1 bg-transparent outline-none px-2 border rounded-full px-3 py-1 dark:border-lightBlack border-lightGray placeholder-gray-500"
               value={caption}
               onKeyDown={(e) => {
                 if (e?.key === "Enter") {

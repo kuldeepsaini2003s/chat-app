@@ -2,6 +2,11 @@ import { useDispatch, useSelector } from "react-redux";
 import ChatItem from "./ChatItem";
 import { setActiveChat } from "../redux/userSlice";
 import { setMessages } from "../redux/messageSlice";
+import {
+  setConfirmationPop,
+  setMediaFiles,
+  setMediaPreview,
+} from "../redux/stateSlice";
 
 const ChatList = () => {
   const { activeChat, contacts } = useSelector((store) => store?.user);
@@ -12,6 +17,9 @@ const ChatList = () => {
       history.pushState({ chatOpen: true }, "");
     }
     dispatch(setMessages([]));
+    dispatch(setMediaPreview(false));
+    dispatch(setConfirmationPop(false));
+    dispatch(setMediaFiles([]));
     dispatch(setActiveChat(chat));
     sessionStorage.setItem("activeChat", JSON.stringify(chat));
   };

@@ -7,6 +7,7 @@
 @theme {
   ---breakpoint-*: initial;
   --breakpoint-ml: 426px;
+  --breakpoint-lg: 1024px;
   --color-black: #161717;
   --color-darkBlack: #242626;
   --color-lightBlack: #2e2f2f;

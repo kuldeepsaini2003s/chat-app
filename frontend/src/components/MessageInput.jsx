@@ -14,6 +14,7 @@ const MessageInput = () => {
   const { handleError } = useResponseHandler();
   const { activeChat, user } = useSelector((store) => store?.user);
   const { messages } = useSelector((store) => store?.message);
+  const { mediaPreview, mediaFiles } = useSelector((store) => store?.state);
   const [message, setMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showAttachOptions, setShowAttachOptions] = useState(false);
@@ -23,12 +24,9 @@ const MessageInput = () => {
   const fileInputRef = useRef(null);
   const documentRef = useRef(null);
   const mediaRef = useRef(null);
-  const mediaPreviewRef = useRef(null);
   const tempId = uuid();
-  // const typingTimeoutRef = useRef(null);
-
   const dispatch = useDispatch();
-  const { mediaPreview, mediaFiles } = useSelector((store) => store?.state);
+  // const typingTimeoutRef = useRef(null);
 
   const handleSendMessage = async () => {
     if (message.trim()) {
@@ -81,12 +79,6 @@ const MessageInput = () => {
       ) {
         setShowAttachOptions(false);
       }
-      if (
-        mediaPreviewRef.current &&
-        !mediaPreviewRef.current.contains(e.target)
-      ) {
-        setShowConfirmationPop(true);
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -116,6 +108,12 @@ const MessageInput = () => {
         file,
         url: URL.createObjectURL(file),
       }));
+      if (window.innerWidth < 748) {
+        const currentState = history.state;
+        if (!currentState.mediaPreview) {
+          history.pushState({ ...currentState, mediaPreview: true }, "");
+        }
+      }
       dispatch(setMediaFiles(mediaUrls));
       dispatch(setMediaPreview(true));
     } else {
@@ -124,6 +122,7 @@ const MessageInput = () => {
     mediaRef?.current?.focus();
     e.target.value = null;
   };
+
   let typingTimeout;
 
   if (!activeChat) return null;
@@ -145,7 +144,7 @@ const MessageInput = () => {
   };
 
   return (
-    <div>
+    <>
       <div className="p-2 flex gap-2 items-center relative">
         <div className="flex items-center">
           <button
@@ -225,7 +224,7 @@ const MessageInput = () => {
         )}
 
         {mediaPreview && (
-          <div ref={mediaPreviewRef} className="absolute bottom-3 left-3 z-10">
+          <div className="absolute bottom-0 w-full left-0 z-10">
             <MediaPreview inputRef={inputRef} />
           </div>
         )}
@@ -252,7 +251,7 @@ const MessageInput = () => {
           )}
         </button>
       </div>
-    </div>
+    </>
   );
 };
 

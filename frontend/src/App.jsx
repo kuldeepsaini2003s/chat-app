@@ -22,7 +22,11 @@ import ForgotPassword from "./components/ForgotPassword";
 import useHandleMessages from "./hooks/useHandleMessages";
 import useFetchUser from "./hooks/useFetchUser";
 import Body from "./components/Body";
-import { setImagePreview, setImageUrl } from "./redux/stateSlice";
+import {
+  setConfirmationPop,
+  setImagePreview,
+  setImageUrl,
+} from "./redux/stateSlice";
 
 function App() {
   useFetchUser();
@@ -83,6 +87,10 @@ function App() {
       if (!state.chatOpen) {
         dispatch(setActiveChat(null));
         sessionStorage.removeItem("activeChat");
+      }
+
+      if (!state.mediaPreview) {
+        dispatch(setConfirmationPop(true));
       }
     };
     window.addEventListener("popstate", handlePopState);
