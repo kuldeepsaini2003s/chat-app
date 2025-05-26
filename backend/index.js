@@ -29,6 +29,10 @@ app.use(urlencoded({ limit: "100kb", extended: true }));
 app.use("/api/user", userRoute);
 app.use("/api/message", messageRoute);
 
+app.get("/", (req, res) => {
+  res.send("Server started");
+});
+
 connectDB()
   .then(() => {
     server.listen(process.env.PORT, () => {
